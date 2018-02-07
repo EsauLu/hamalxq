@@ -161,6 +161,44 @@ public class Utils {
 
     }
 
+    public static void bfsWithDepth(int pid, Node root) {
+
+        if (root == null) {
+            return;
+        }
+        
+        StringBuilder sb=new StringBuilder();
+        
+        sb.append("pid = "+pid+"    ");
+
+        for (int i=0;i<root.getChildNum();i++) {
+            
+            Node ch=root.getChildByIndex(i);
+
+            Deque<Node> que = new ArrayDeque<>();
+            que.addLast(ch);
+
+            while (!que.isEmpty()) {
+
+                Node node = que.removeFirst();
+
+                String s = node.toString();
+                s = s.substring(0, s.length() - 1);
+                sb.append(s + "(" + node.getDepth() + ") ");
+
+                for (int j=0;j<node.getChildNum();j++) {
+                    que.addLast(node.getChildByIndex(j));
+                }
+
+
+            }
+
+        }
+
+        System.out.println(sb.toString());
+
+    }
+
     public static void dfsWithDepth(Node root) {
 
         for (int i=0;i<root.getChildNum();i++) {
