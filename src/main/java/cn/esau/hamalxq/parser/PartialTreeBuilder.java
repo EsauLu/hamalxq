@@ -28,6 +28,10 @@ public class PartialTreeBuilder {
         System.out.println("Build SubTrees...");
         subTrees = buildSubTrees(peer);
         
+        for(Node root: subTrees) {
+            Utils.bfsWithDepth(pid, root);
+        }
+        
         System.out.println("Select Left Open Nodes...");
         List<Node> ll = selectLeftOpenNodes(subTrees);
         
