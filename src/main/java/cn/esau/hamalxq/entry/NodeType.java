@@ -25,6 +25,48 @@ public enum NodeType {
         return String.valueOf(type);
     }
     
+    public int getValue() {
+        return type;
+    }
+    
+    public static NodeType parseNodeType(int s) {
+        // TODO Auto-generated method stub
+        
+        int t=s;
+        
+        NodeType nodeType=CLOSED_NODE;
+        
+        switch (t) {
+        case 1:
+            
+            nodeType=NodeType.LEFT_OPEN_NODE;
+            
+            break;
+
+        case 2:
+            
+            nodeType=NodeType.RIGHT_OPEN_NODE;
+            
+            break;
+
+        case 3:
+            
+            nodeType=NodeType.PRE_NODE;
+            
+            break;
+
+        default:
+            
+            nodeType=NodeType.CLOSED_NODE;
+            
+            break;
+        }
+        
+        return nodeType;
+
+    }
+    
+    
     public static NodeType parseNodeType(String s) {
         // TODO Auto-generated method stub
         

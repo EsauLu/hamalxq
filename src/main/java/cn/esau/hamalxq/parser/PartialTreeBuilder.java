@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -17,34 +19,297 @@ import cn.esau.hamalxq.entry.PartialTree;
 import cn.esau.hamalxq.entry.Tag;
 import cn.esau.hamalxq.entry.TagType;
 import cn.esau.hamalxq.factory.NodeFactory;
-import cn.esau.hamalxq.utils.Utils;
 
 public class PartialTreeBuilder {
 
-    public static PartialTree buildPartialTree(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Text> peer)
+    public static PartialTree buildPartialTree(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer)
             throws IOException, SyncException, InterruptedException {
-        
-        List<Node> subTrees=null;
-        System.out.println("Build SubTrees...");
-        subTrees = buildSubTrees(peer);
-        
-        for(Node root: subTrees) {
-            Utils.bfsWithDepth(pid, root);
+
+        List<Node> subTrees = null;
+        subTrees = buildSubTrees(pid, peer);
+
+        // GetPrePath
+        Node root = getPrePath(pid, peer, subTrees);
+
+        // Compute Uid numbers.
+        int taskNum = peer.getNumPeers();
+        for (int i = 0; i < taskNum; i++) {
+            if (i == peer.getPeerIndex()) {
+                computeUid(pid, peer, root);
+            }
+            peer.sync();
         }
-        
-        System.out.println("Select Left Open Nodes...");
+
+        PartialTree pt = new PartialTree();
+        pt.setRoot(root);
+        pt.setPid(pid);
+        pt.update();
+
+        // Compute ranges.
+        computeRanges(pid, peer, pt);
+
+        peer.sync();
+
+//        Utils.bfsWithRanges(pid, root);
+
+        return pt;
+    }
+
+    private static Node getPrePath(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer, List<Node> subTrees)
+            throws IOException, SyncException, InterruptedException {
+
         List<Node> ll = selectLeftOpenNodes(subTrees);
+        for (Node node : ll) {
+            peer.send(peer.getPeerName(0), NodeFactory.createNode(node.getTagName(), node.getType(), node.getPid()));
+        }
+
+        List<Node> rl = selectRightOpenNodes(subTrees);
+        for (Node node : rl) {
+            peer.send(peer.getPeerName(0), NodeFactory.createNode(node.getTagName(), node.getType(), node.getPid()));
+        }
+
+        peer.sync();
+
+        if (peer.getPeerIndex() == 0) {
+            computPrePath(pid, peer, subTrees);
+        }
+
+        peer.sync();
+
+        Node root = addPrePath(pid, peer, subTrees);
+
+        return root;
+
+    }
+
+    private static void computeRanges(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer, PartialTree pt)
+            throws IOException, SyncException, InterruptedException {
+        List<Node> openNodes = selectOpenNodes(pt);
+
+        int taskNum=peer.getNumPeers();
         
-        for(Node node: ll) {
-            peer.send(peer.getPeerName(0), new Text(node.toText()));
+        for (Node node : openNodes) {
+            peer.send(peer.getPeerName(0), node);
+        }
+
+        peer.sync();
+
+        if (peer.getPeerIndex() == 0) {
+            List<Node> ranges = prepareRanges(pid, peer, pt);
+            for(int i=0;i<taskNum;i++) {
+                String peerName=peer.getPeerName(i);
+                for(Node node: ranges) {
+                    peer.send(peerName, node);
+                }
+            }
         }
         
         peer.sync();
         
-        if(peer.getPeerIndex()==0) {
-            int num=peer.getNumCurrentMessages();
-            System.out.println("Messege : "+num);
+        List<Node> rangsNodes=new ArrayList<>();
+
+        while (true) {
+            Node node = peer.getCurrentMessage();
+            if (node == null) {
+                break;
+            }
+            rangsNodes.add(node);
         }
+        
+        setRangs(pt, rangsNodes);
+      
+    }
+    
+    private static void setRangs(PartialTree pt, List<Node> rangsNodes) {
+        for(Node node: rangsNodes) {
+            Node tem=pt.findNodeByUid(node.getUid());
+            if(tem!=null) {
+                tem.setStart(node.getStart());
+                tem.setEnd(node.getEnd());
+            }
+        }
+    }
+
+    private static List<Node> prepareRanges(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer, PartialTree pt)
+            throws IOException, SyncException, InterruptedException {
+
+        Map<Long, Node> rangsMap = new HashMap<>();
+        while (true) {
+            Node node = peer.getCurrentMessage();
+            if (node == null) {
+                break;
+            }
+
+            long nodeUid = node.getUid();
+            int nodePid = node.getPid();
+
+            Node tem = rangsMap.get(nodeUid);
+            if (tem == null) {
+                tem = NodeFactory.createNode(node.getTagName(), node.getType(), nodePid);
+                tem.setUid(nodeUid);
+                rangsMap.put(nodeUid, tem);
+            }
+
+            if (tem.getStart() > nodePid) {
+                tem.setStart(nodePid);
+            }
+
+            if (tem.getEnd() < nodePid) {
+                tem.setEnd(nodePid);
+            }
+
+        }
+
+        return new ArrayList<>(rangsMap.values());
+    }
+
+    private static void computeUid(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer, Node root)
+            throws IOException, SyncException, InterruptedException {
+
+        Node uidRecordNode = peer.getCurrentMessage();
+        long uid = -1;
+        if (uidRecordNode != null) {
+            uid = uidRecordNode.getUid();
+        }
+
+        Node p = root;
+        while (p != null) {
+            Node rec = peer.getCurrentMessage();
+            if (rec == null) {
+                break;
+            }
+            p.setUid(rec.getUid());
+            p = p.getFirstChild();
+        }
+
+        Deque<Node> stack = new ArrayDeque<Node>();
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            Node node = stack.pop();
+            if (node.getUid() == Long.MIN_VALUE) {
+                node.setUid(uid++);
+            }
+            for (int j = node.getChildNum() - 1; j >= 0; j--) {
+                stack.push(node.getChildByIndex(j));
+            }
+        }
+
+        if (pid + 1 < peer.getNumPeers()) {
+            Node tem = new Node();
+            tem.setUid(uid);
+            peer.send(peer.getPeerName(pid + 1), tem);
+            p = root;
+            while (p != null && (p.isRightOpenNode() || p.isPreOpenNode())) {
+                peer.send(peer.getPeerName(pid + 1), p);
+                p = p.getLastChild();
+            }
+        }
+
+    }
+
+    private static Node addPrePath(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer, List<Node> subTrees)
+            throws IOException, SyncException, InterruptedException {
+
+        List<Node> pp = new ArrayList<>();
+        while (true) {
+            Node preNode = peer.getCurrentMessage();
+            if (preNode == null) {
+                break;
+            }
+            preNode.setType(NodeType.PRE_NODE);
+            pp.add(preNode);
+        }
+
+        for (int i = 0; i < pp.size() - 1; i++) {
+            Node p1 = pp.get(i);
+            Node p2 = pp.get(i + 1);
+            p1.addLastChild(p2);
+        }
+
+        Node root = NodeFactory.createNode("Root", NodeType.PRE_NODE, pid);
+        if (pp.size() == 0) {
+            for (Node node : subTrees) {
+                root.addLastChild(node);
+            }
+        } else {
+            Node last = pp.get(pp.size() - 1);
+            for (Node node : subTrees) {
+                last.addLastChild(node);
+            }
+            root.addLastChild(pp.get(0));
+        }
+
+        return root;
+    }
+
+    private static List<Node> computPrePath(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer, List<Node> subTrees)
+            throws IOException, SyncException, InterruptedException {
+
+        // collecting left open nodes and right open nodes.
+
+        int taskNum = peer.getNumPeers();
+
+        List<List<Node>> lls = new ArrayList<>(taskNum);
+        List<List<Node>> rls = new ArrayList<>(taskNum);
+
+        for (int i = 0; i < taskNum; i++) {
+            List<Node> ll = new ArrayList<>();
+            List<Node> rl = new ArrayList<>();
+            lls.add(ll);
+            rls.add(rl);
+        }
+
+        while (true) {
+            Node node = peer.getCurrentMessage();
+            if (node == null) {
+                break;
+            }
+            if (node.isLeftOpenNode()) {
+                lls.get(node.getPid()).add(node);
+            }
+            if (node.isRightOpenNode()) {
+                rls.get(node.getPid()).add(node);
+            }
+        }
+
+        List<Node> auxList = new ArrayList<>();
+
+        for (int i = 0; i < taskNum - 1; i++) {
+            List<Node> rl = rls.get(i);
+            for (Node node : rl) {
+                auxList.add(node);
+            }
+            List<Node> ll = lls.get(i + 1);
+            for (int j = 0; j < ll.size(); j++) {
+                auxList.remove(auxList.size() - 1);
+            }
+            for (Node node : auxList) {
+                peer.send(peer.getPeerName(i + 1), NodeFactory.createNode(node.getTagName(), node.getType(), node.getPid()));
+            }
+        }
+
+        // System.out.println("Left Open Nodes : ");
+        // for(int i=0;i<lls.size();i++) {
+        // System.out.print("pt"+i);
+        // List<Node> ll=lls.get(i);
+        // for(Node node: ll) {
+        // System.out.print(node);
+        // }
+        // System.out.println();
+        // }
+        // System.out.println("-----------------------------");
+        //
+        // System.out.println("Right Open Nodes : ");
+        // for(int i=0;i<rls.size();i++) {
+        // System.out.print("pt"+i);
+        // List<Node> rl=rls.get(i);
+        // for(Node node: rl) {
+        // System.out.print(node);
+        // }
+        // System.out.println();
+        // }
+        // System.out.println("-----------------------------");
 
         return null;
     }
@@ -64,13 +329,12 @@ public class PartialTreeBuilder {
         return ll;
     }
 
-
-    private static List<Node> selectRighttOpenNodes(List<Node> subTrees) {
+    private static List<Node> selectRightOpenNodes(List<Node> subTrees) {
 
         List<Node> rl = new ArrayList<>();
 
         if (subTrees != null && subTrees.size() > 0) {
-            Node node = subTrees.get(subTrees.size()-1);
+            Node node = subTrees.get(subTrees.size() - 1);
             while (node != null && node.isRightOpenNode()) {
                 rl.add(node);
                 node = node.getLastChild();
@@ -80,11 +344,38 @@ public class PartialTreeBuilder {
         return rl;
     }
 
-    public static List<Node> buildSubTrees(BSPPeer<LongWritable, Text, LongWritable, Text, Text> peer)
+    private static List<Node> selectOpenNodes(PartialTree pt) {
+
+        Node root = pt.getRoot();
+
+        List<Node> openNodes = new ArrayList<>();
+        Node p = root;
+        while (p != null && p.isPreOpenNode()) {
+            openNodes.add(p);
+            p = p.getFirstChild();
+        }
+
+        if (p != null) {
+            Node parent = p.getParent();
+            List<Node> chs = null;
+            if (parent != null) {
+                chs = parent.getAllChilds();
+            } else {
+                chs = p.getAllChilds();
+            }
+            openNodes.addAll(selectLeftOpenNodes(chs));
+            openNodes.addAll(selectRightOpenNodes(chs));
+        }
+
+        return openNodes;
+
+    }
+
+    public static List<Node> buildSubTrees(int pid, BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer)
             throws IOException, SyncException, InterruptedException {
 
         Deque<Node> stack = new ArrayDeque<Node>();
-        stack.push(NodeFactory.createNode("ROOT", NodeType.CLOSED_NODE, 0));
+        stack.push(NodeFactory.createNode("ROOT", NodeType.CLOSED_NODE, pid));
 
         LongWritable key = new LongWritable();
         Text value = new Text();
@@ -99,13 +390,13 @@ public class PartialTreeBuilder {
 
                 if (TagType.START.equals(tag.getType())) {
 
-                    Node node = NodeFactory.createNode(tag.getName(), NodeType.CLOSED_NODE, tag.getTid());
+                    Node node = NodeFactory.createNode(tag.getName(), NodeType.CLOSED_NODE, pid);
                     stack.push(node);
 
                 } else {
 
                     if (TagType.FULL.equals(tag.getType())) {
-                        Node node = NodeFactory.createNode(tag.getName(), NodeType.CLOSED_NODE, tag.getTid());
+                        Node node = NodeFactory.createNode(tag.getName(), NodeType.CLOSED_NODE, pid);
                         stack.push(node);
                     }
 
@@ -115,7 +406,7 @@ public class PartialTreeBuilder {
                         stack.pop();
                         stack.peek().addLastChild(node);
                     } else {
-                        Node temNode = NodeFactory.createNode(tag.getName(), NodeType.LEFT_OPEN_NODE, tag.getTid());
+                        Node temNode = NodeFactory.createNode(tag.getName(), NodeType.LEFT_OPEN_NODE, pid);
                         temNode.addChilds(node.getAllChilds());
                         node.clearChilds();
                         node.addLastChild(temNode);
@@ -138,10 +429,10 @@ public class PartialTreeBuilder {
     }
 
     private static Tag getTag(String tagStr) {
-        
-//        int index = tagStr.indexOf(" ");
-//        String tidStr = tagStr.substring(0, index);
-//        tagStr = tagStr.substring(index + 1);
+
+        // int index = tagStr.indexOf(" ");
+        // String tidStr = tagStr.substring(0, index);
+        // tagStr = tagStr.substring(index + 1);
 
         if (tagStr == null || tagStr.trim().equals("")) {
             return null;
@@ -170,12 +461,12 @@ public class PartialTreeBuilder {
             tag.setName(tagStr);
         }
 
-//        try {
-//            tag.setTid(Integer.parseInt(tidStr));
-//        } catch (NumberFormatException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
+        // try {
+        // tag.setTid(Integer.parseInt(tidStr));
+        // } catch (NumberFormatException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
 
         return tag;
 

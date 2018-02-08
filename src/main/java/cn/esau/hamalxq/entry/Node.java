@@ -1,12 +1,19 @@
 package cn.esau.hamalxq.entry;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Node implements MsgItem{
+import org.apache.hadoop.io.WritableComparable;
+
+public class Node implements WritableComparable<Node>, Cloneable{
 
     private long uid;
+    
+    private int pid;
 
     private String tagName;
 
@@ -87,6 +94,14 @@ public class Node implements MsgItem{
 
     public void setChecked(boolean isChecked) {
         this.isChecked = isChecked;
+    }
+
+    public int getPid() {
+        return pid;
+    }
+
+    public void setPid(int pid) {
+        this.pid = pid;
     }
 
     public long getUid() {
@@ -287,6 +302,54 @@ public class Node implements MsgItem{
         return Objects.hash(uid, tagName, type);
     }
 
+    @Override
+    public void write(DataOutput out) throws IOException {
+        // TODO Auto-generated method stub
+        out.writeInt(pid);
+        out.writeLong(uid);
+        out.writeUTF(tagName);
+        out.writeInt(type.getValue());
+        out.writeInt(start);
+        out.writeInt(end);
+    }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        // TODO Auto-generated method stub
+        this.pid=in.readInt();
+        this.uid=in.readLong();
+        this.tagName=in.readUTF();
+        this.type=NodeType.parseNodeType(in.readInt());
+        this.start=in.readInt();
+        this.end=in.readInt();
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        // TODO Auto-generated method stub
+        long res=this.uid-o.uid;
+        if(res==0) {
+            return 0;
+        }else if(res<0){
+            return -1;
+        }
+        return 1;
+    }
+    
+    
+    
+    @Override
+    public Node clone() throws CloneNotSupportedException {
+        // TODO Auto-generated method stub
+        Node newNode = (Node)super.clone();
+        newNode.clearChilds();
+        return newNode;
+    }
+    
+    
+    
+    
+
 //    public String toBfsString() {
 //        String s = toString().trim();
 //
@@ -304,4 +367,15 @@ public class Node implements MsgItem{
 //        return s;
 //    }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

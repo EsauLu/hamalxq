@@ -46,8 +46,10 @@ public class Tag {
         // TODO Auto-generated method stub
         if (TagType.START.equals(type)) {
             return " <" + name + ">";
-        } else {
+        } else if (TagType.END.equals(type)) {
             return " </" + name + ">";
+        } else {
+            return "<" + name + "/>";
         }
     }
 

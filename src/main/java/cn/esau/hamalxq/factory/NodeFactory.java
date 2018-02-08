@@ -5,13 +5,14 @@ import cn.esau.hamalxq.entry.NodeType;
 
 public class NodeFactory {
 
-    public static Node createNode(String tagName, NodeType type, int uid) {
+    public static Node createNode(String tagName, NodeType type, int pid) {
         Node node = new Node();
         node.setTagName(tagName);
         node.setType(type);
-        node.setUid(uid);
-        node.setStart(uid);
-        node.setEnd(uid);
+        node.setUid(Long.MIN_VALUE);
+        node.setStart(pid);
+        node.setEnd(pid);
+        node.setPid(pid);
         return node;
     }
 

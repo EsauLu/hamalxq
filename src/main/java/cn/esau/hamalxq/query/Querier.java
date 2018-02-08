@@ -11,4 +11,12 @@ public class Querier {
         this.pt = pt;
     }
 
+    public PartialTree getPt() {
+        return pt;
+    }
+
+    public void setPt(PartialTree pt) {
+        this.pt = pt;
+    }
+
 }

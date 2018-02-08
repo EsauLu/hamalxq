@@ -29,8 +29,11 @@ public class Main {
     
     public static void runBuildPartialTreesJob() throws IllegalArgumentException, Exception{
         
-        String input="xml/ex";        
-        String output="output/extrees";
+//        String input="xml/ex";        
+//        String output="output/extrees";
+        
+        String input="xml/x1";        
+        String output="output/x1";
         
         if(PartialTreesBuildTask.runJob(input, output, taskNum)) {
             System.out.println("True");
