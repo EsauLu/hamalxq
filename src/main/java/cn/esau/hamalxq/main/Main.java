@@ -32,8 +32,11 @@ public class Main {
 //        String input="xml/ex";        
 //        String output="output/extrees";
         
-        String input="xml/x1";        
-        String output="output/x1";
+//        String input="xml/x1";        
+//        String output="output/x1";
+        
+        String input="xml/x6";        
+        String output="output/x6";
         
         if(PartialTreesBuildTask.runJob(input, output, taskNum)) {
             System.out.println("True");
