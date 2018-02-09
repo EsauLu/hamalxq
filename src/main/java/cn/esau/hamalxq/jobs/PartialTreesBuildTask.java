@@ -14,8 +14,10 @@ import cn.esau.hamalxq.bsp.input.format.TagInputFormat;
 
 public class PartialTreesBuildTask {
 
-    public static boolean runJob(String input, String output, int taskNum) throws IllegalArgumentException, Exception {
+    public static boolean runJob(String input, String output, String xpath, int taskNum) throws IllegalArgumentException, Exception {
         HamaConfiguration conf = new HamaConfiguration();
+        
+        conf.set("xpath", xpath);
 
         BSPJob bsp = new BSPJob(conf, PartialTreesBuildTask.class);
         // Set the job name

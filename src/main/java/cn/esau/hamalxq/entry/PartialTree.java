@@ -385,6 +385,7 @@ public class PartialTree {
             Node node = que.removeFirst();
 
             if (!nodeMap.containsKey(node.getUid())) {
+                node.setPid(pid);
                 nodeMap.put(node.getUid(), node);
             }
 

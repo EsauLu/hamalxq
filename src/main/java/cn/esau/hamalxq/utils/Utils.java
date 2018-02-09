@@ -362,11 +362,14 @@ public class Utils {
 
     }
 
-    public static void printNods(List<Node> list) {
+    public static void printNods(int pid, List<Node> list) {
+        StringBuilder sb=new StringBuilder();
+        
+        sb.append(pid+" : ");
         for (Node node : list) {
-            System.out.print(node);
+            sb.append(node);
         }
-        System.out.println();
+        System.out.println(sb.toString());
     }
 
     public static void printPNods(List<PNode> list) {

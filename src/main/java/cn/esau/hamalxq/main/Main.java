@@ -29,16 +29,19 @@ public class Main {
     
     public static void runBuildPartialTreesJob() throws IllegalArgumentException, Exception{
         
-//        String input="xml/ex";        
-//        String output="output/extrees";
+        String input="xml/ex";        
+        String output="output/extrees";
+        String xpath="xpath/XPaths1.txt";
         
 //        String input="xml/x1";        
 //        String output="output/x1";
+//        String xpath="xpath/XPaths2.txt";
         
-        String input="xml/x6";        
-        String output="output/x6";
+//        String input="xml/x6";        
+//        String output="output/x6";
+//        String xpath="xpath/XPaths2.txt";
         
-        if(PartialTreesBuildTask.runJob(input, output, taskNum)) {
+        if(PartialTreesBuildTask.runJob(input, output, xpath, taskNum)) {
             System.out.println("True");
         }else {
             System.out.println("False");

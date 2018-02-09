@@ -1,0 +1,4 @@
+Q4 /child::site/descendant::keyword/parent::text
+Q5 /child::site/child::people/child::person[child::profile/child::gender]/child::name
+Q6 /child::site/child::open_auctions/child::open_auction/child::bidder[following-sibling::bidder]
+Q7 /child::site/child::closed_auctions/child::closed_auction/child::annotation/child::description/child::text/child::keyword
