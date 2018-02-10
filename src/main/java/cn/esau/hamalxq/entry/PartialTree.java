@@ -196,6 +196,29 @@ public class PartialTree {
         return outputList;
     }
 
+    public List<Node> findParentNodes(List<Node> inputList) {
+
+        List<Node> outputList = new ArrayList<>();
+
+        int size = inputList.size();
+        for (int i = size-1; i >= 0; i--) {
+
+            Node inputNode = inputList.remove(i);
+            Node node = nodeMap.get(inputNode.getUid());
+            if (node == null) {
+                continue;
+            }
+
+            Node parent = node.getParent();
+            if (parent != null) {
+                outputList.add(parent);
+            }
+
+        }
+
+        return outputList;
+    }
+
     public List<PNode> findParentPNodes(List<PNode> inputList, String test) {
 
         List<PNode> outputList = new ArrayList<>();
@@ -210,6 +233,28 @@ public class PartialTree {
 
             Node parent = node.getParent();
             if (parent != null && checkNameTest(test, parent)) {
+                outputList.add(new PNode(parent, inputPNode.getLink()));
+            }
+
+        }
+
+        return outputList;
+    }
+
+    public List<PNode> findParentPNodes(List<PNode> inputList) {
+
+        List<PNode> outputList = new ArrayList<>();
+
+        int size = inputList.size();
+        for (int i = size-1; i >= 0; i--) {
+            PNode inputPNode = inputList.remove(i);
+            Node node = nodeMap.get(inputPNode.getNode().getUid());
+            if (node == null) {
+                continue;
+            }
+
+            Node parent = node.getParent();
+            if (parent != null) {
                 outputList.add(new PNode(parent, inputPNode.getLink()));
             }
 

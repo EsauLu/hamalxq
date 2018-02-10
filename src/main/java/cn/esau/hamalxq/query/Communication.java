@@ -10,6 +10,7 @@ import org.apache.hama.bsp.BSPPeer;
 import org.apache.hama.bsp.sync.SyncException;
 
 import cn.esau.hamalxq.entry.Node;
+import cn.esau.hamalxq.utils.Utils;
 
 public class Communication {
 
