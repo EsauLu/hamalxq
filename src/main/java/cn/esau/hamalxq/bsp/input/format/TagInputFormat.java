@@ -37,6 +37,7 @@ public class TagInputFormat extends FileInputFormat<LongWritable, Text> {
         }
 
         int splitNum = job.getNumBspTask();
+        
         long splitSize = totalLen / splitNum + 1;
 
         List<InputSplit> splits = new ArrayList<InputSplit>();

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: cn.esau.hamalxq.main.MainTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.743 sec
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.131 sec

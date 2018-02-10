@@ -40,6 +40,12 @@ public class Communication {
         }
     }
     
+    public void sendNodesToAllWorker(List<Node> list) throws IOException, SyncException, InterruptedException {
+    	for(int i=0;i<taskNum;i++) {
+    		sendNodeList(i, list);
+    	}
+    }
+    
     public List<List<Node>> receiveFromAllPeer() throws IOException, SyncException, InterruptedException {
         List<List<Node>> resultLists=new ArrayList<>(taskNum);
         for(int i=0;i<taskNum;i++) {

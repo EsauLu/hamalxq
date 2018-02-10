@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Built-By: imac
+Built-By: esau
 Class-Path: conf/ lib/hama-core-0.7.1.jar lib/snappy-java-1.0.5.jar li
  b/guava-13.0.1.jar lib/commons-logging-1.1.1.jar lib/commons-cli-1.2.
  jar lib/commons-compress-1.9.jar lib/commons-configuration-1.7.jar li
@@ -37,7 +37,7 @@ Class-Path: conf/ lib/hama-core-0.7.1.jar lib/snappy-java-1.0.5.jar li
  rator-framework-2.7.1.jar lib/protobuf-java-2.5.0.jar lib/hadoop-yarn
  -client-2.7.0.jar lib/hadoop-yarn-api-2.7.0.jar lib/hama-commons-0.7.
  1.jar
-Build-Jdk: 1.8.0_151
+Build-Jdk: 1.8.0_161
 Created-By: Maven Integration for Eclipse
 Main-Class: cn.esau.hamalxq.main.Main
 

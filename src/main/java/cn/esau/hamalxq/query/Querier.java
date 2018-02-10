@@ -3,8 +3,10 @@ package cn.esau.hamalxq.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -13,6 +15,7 @@ import org.apache.hama.bsp.sync.SyncException;
 
 import cn.esau.hamalxq.entry.Axis;
 import cn.esau.hamalxq.entry.Node;
+import cn.esau.hamalxq.entry.NodeType;
 import cn.esau.hamalxq.entry.PartialTree;
 import cn.esau.hamalxq.entry.Step;
 import cn.esau.hamalxq.utils.Utils;
@@ -68,7 +71,6 @@ public class Querier {
             List<Node> inputList = com.receiveNodeList();
             queryWithAixs(step.getAxis(), inputList, step.getNameTest());
             
-
              step=step.getNext();
 //            break;
         }
@@ -91,46 +93,112 @@ public class Querier {
 
         // Parent axis
         if (Axis.PARENT.equals(axis)) {
-            // return queryParent(inputLists, test);
+             queryParent(inputList, test);
         }
 
         // Following-sibling axis
         if (Axis.FOLLOWING_SIBLING.equals(axis)) {
             // return queryFollowingSibling(inputLists, test);
         }
+        
+        if(isMarster()) {
+        	System.out.println();
+        	System.out.println("Step : "+axis+":"+test);
+        	System.out.println("----------------------------------");
+            Utils.print(resultLists);
+        }
+        sync();
 
     }
 
     private void queryChid(List<Node> inputList, String test) throws IOException, SyncException, InterruptedException {
         // TODO Auto-generated method stub
         
-        Utils.printNods(pt.getPid(), inputList);
-        
         com.sendNodeList(0, pt.findChildNodes(inputList, test));
         
         sync();
         
         if(isMarster()) {
             resultLists=com.receiveFromAllPeer();
-            Utils.print(resultLists);
         }
         
         sync();
         
     }
 
-    private void queryDescendant(List<Node> inputList, String test) throws IOException, SyncException, InterruptedException {
+    private void queryParent(List<Node> inputList, String test) throws IOException, SyncException, InterruptedException {
         // TODO Auto-generated method stub
         
-        Utils.printNods(pt.getPid(), inputList);
-        
-        com.sendNodeList(0, pt.findChildNodes(inputList, test));
+        com.sendNodeList(0, pt.findParentNodes(inputList, test));
         
         sync();
         
         if(isMarster()) {
             resultLists=com.receiveFromAllPeer();
-            Utils.print(resultLists);
+        }
+        
+        sync();
+        
+    }
+
+
+
+    public void shareNodes(List<List<Node>> nodeLists) throws IOException, SyncException, InterruptedException {
+
+    	if(isMarster()) {
+            List<Node> toBeShare = new ArrayList<Node>();
+            Set<Long> toBeShareUidSet = new HashSet<>();
+            for (int i = 0; i < taskNum; i++) {
+                for (Node node : nodeLists.get(i)) {
+                    if (!NodeType.CLOSED_NODE.equals(node.getType())                        
+                            && !toBeShareUidSet.contains(node.getUid())) {
+                        toBeShareUidSet.add(node.getUid());
+                        toBeShare.add(node);
+                    }
+                }
+            }
+            
+            com.sendNodesToAllWorker(toBeShare);
+    	}
+        
+        sync();
+
+        List<Node> toBeShare = com.receiveNodeList();
+        List<Node> results=pt.findCorrespondingNodes(toBeShare);
+        com.sendNodeList(0, results);
+        
+        sync();
+        
+        if(isMarster()) {
+
+            List<List<Node>> responseLists = com.receiveFromAllPeer();
+
+            for (int i = 0; i < taskNum; i++) {
+
+                Set<Node> set = new HashSet<Node>();
+                List<Node> inputList = nodeLists.get(i);
+
+                set.addAll(inputList);
+                set.addAll(responseLists.get(i));
+
+                inputList.clear();
+                inputList.addAll(set);
+
+            }
+
+        }
+        
+    }
+    
+    private void queryDescendant(List<Node> inputList, String test) throws IOException, SyncException, InterruptedException {
+        // TODO Auto-generated method stub
+        
+        com.sendNodeList(0, pt.findDescendantNodes(inputList, test));
+        
+        sync();
+        
+        if(isMarster()) {
+            resultLists=com.receiveFromAllPeer();
         }
         
         sync();
