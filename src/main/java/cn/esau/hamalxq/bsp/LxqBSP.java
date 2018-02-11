@@ -45,6 +45,8 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
         FileSystem fs = path.getFileSystem(conf);
         FSDataInputStream fin = fs.open(path);
         
+        System.out.println(path.toString());
+        
         StringBuilder sb=new StringBuilder();
         byte[] buff=new byte[1024];
         int len=0;
@@ -52,7 +54,6 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
             String tem=new String(buff, 0, len);
             sb.append(tem);
         }
-        
         xpathMap=XPathParser.getXPaths(sb.toString().split("\n"));
         
         querier.setXpathMap(xpathMap);

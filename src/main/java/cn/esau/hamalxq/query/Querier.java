@@ -71,16 +71,24 @@ public class Querier {
 
 	private void printResultLists(long timeOut, String key, Step xpath)
 			throws IOException, SyncException, InterruptedException {
-		Utils.print(resultLists);
+//		Utils.print(resultLists);
 		peer.write(new Text(""), new Text(""));
 		peer.write(new Text(key+" : "), new Text("/"+xpath.toXPath()));
 		peer.write(new Text(""), new Text(""));
 		peer.write(new Text("Number of nodes in result : "), new Text(""));
 		peer.write(new Text(""), new Text(""));
+		long nodeCount=0;
 		for(int i=0;i<taskNum;i++) {
 			List<Node> result=resultLists.get(i);
+			for(Node node: result) {
+				if(node.isLeftOpenNode()||node.isClosedNode()) {
+					nodeCount++;
+				}
+			}
 			peer.write(new Text("\tpt"+i+" : "), new Text(""+result.size()));
 		}
+		peer.write(new Text(""), new Text(""));
+		peer.write(new Text("Number of all nodes : "), new Text(""+nodeCount));
 		peer.write(new Text(""), new Text(""));
 		peer.write(new Text("Time out :"), new Text(""+timeOut+"ms"));
 		peer.write(new Text(""), new Text(""));

@@ -9,7 +9,9 @@ Number of nodes in result :
 	pt3 : 	1
 	pt4 : 	1
 	
-Time out :	12ms
+Number of all nodes : 	4
+	
+Time out :	23ms
 	
 -------	---------------------------------------------------------
 	
@@ -22,6 +24,8 @@ Number of nodes in result :
 	pt2 : 	1
 	pt3 : 	1
 	pt4 : 	2
+	
+Number of all nodes : 	3
 	
 Time out :	8ms
 	
@@ -37,6 +41,8 @@ Number of nodes in result :
 	pt3 : 	0
 	pt4 : 	0
 	
-Time out :	19ms
+Number of all nodes : 	2
+	
+Time out :	33ms
 	
 -------	---------------------------------------------------------
