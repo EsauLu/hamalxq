@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import org.apache.hadoop.io.WritableComparable;
 
-public class Node implements WritableComparable<Node>, Cloneable{
+public class Node implements WritableComparable<Node>{
 
     private long uid;
     

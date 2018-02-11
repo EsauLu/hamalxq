@@ -1,8 +1,13 @@
 package cn.esau.hamalxq.entry;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Objects;
 
-public class Link {
+import org.apache.hadoop.io.WritableComparable;
+
+public class Link implements WritableComparable<Link>{
 
     private int pid;
     private long uid;
@@ -78,5 +83,25 @@ public class Link {
         // TODO Auto-generated method stub
         return Objects.hash(pid, uid);
     }
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		// TODO Auto-generated method stub
+		this.pid=in.readInt();
+		this.uid=in.readLong();
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		// TODO Auto-generated method stub
+		out.writeInt(pid);
+		out.writeLong(uid);
+	}
+
+	@Override
+	public int compareTo(Link o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }

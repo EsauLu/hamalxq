@@ -1,3 +1,3 @@
-# Q1 child::A/descendant::B/descendant::C/parent::B
+Q1 child::A/descendant::B/descendant::C/parent::B
 Q2 /descendant::B/following-sibling::B
-# Q3 /descendant::B[following-sibling::B/child::C]/child::C
+Q3 /descendant::B[following-sibling::B/child::C]/child::C

@@ -1,6 +1,6 @@
 package cn.esau.hamalxq.main;
 
-import cn.esau.hamalxq.jobs.PartialTreesBuildTask;
+import cn.esau.hamalxq.jobs.MyTask;
 
 public class Main {
     
@@ -41,7 +41,7 @@ public class Main {
 //        String output="output/x6";
 //        String xpath="xpath/XPaths2.txt";
         
-        if(PartialTreesBuildTask.runJob(input, output, xpath, taskNum)) {
+        if(MyTask.runJob(input, output, xpath, taskNum)) {
             System.out.println("True");
         }else {
             System.out.println("False");

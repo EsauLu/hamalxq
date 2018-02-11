@@ -14,6 +14,7 @@ import org.apache.hama.bsp.BSPPeer;
 import org.apache.hama.bsp.sync.SyncException;
 
 import cn.esau.hamalxq.entry.Axis;
+import cn.esau.hamalxq.entry.Message;
 import cn.esau.hamalxq.entry.Node;
 import cn.esau.hamalxq.entry.NodeType;
 import cn.esau.hamalxq.entry.PartialTree;
@@ -25,7 +26,7 @@ public class Querier {
 
 	private PartialTree pt;
 
-	private BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer;
+	private BSPPeer<LongWritable, Text, Text, Text, Message> peer;
 
 	private Map<String, Step> xpathMap;
 
@@ -35,6 +36,8 @@ public class Querier {
 
 	private List<List<Node>> resultLists;
 
+	private PQuerier pQuerier;
+
 	public Querier() throws IOException, SyncException, InterruptedException {
 		super();
 	}
@@ -42,24 +45,55 @@ public class Querier {
 	public void start() throws IOException, SyncException, InterruptedException {
 
 		com = new Communication(peer);
+		pQuerier = new PQuerier(pt, peer, com);
 
 		for (String key : xpathMap.keySet()) {
 			Step xpath = xpathMap.get(key);
 
+			resultLists = null;
+			long t1 = 0, t2 = 0;
+
+			if (isMarster()) {
+				t1 = System.currentTimeMillis();
+			}
+			sync();
+
 			query(xpath);
 
+			if (isMarster()) {
+				t2 = System.currentTimeMillis();
+				printResultLists(t2 - t1, key, xpath);
+			}
 			sync();
 		}
 
 	}
 
-	private List<Node> query(Step xpath) throws IOException, SyncException, InterruptedException {
+	private void printResultLists(long timeOut, String key, Step xpath)
+			throws IOException, SyncException, InterruptedException {
+		Utils.print(resultLists);
+		peer.write(new Text(""), new Text(""));
+		peer.write(new Text(key+" : "), new Text("/"+xpath.toXPath()));
+		peer.write(new Text(""), new Text(""));
+		peer.write(new Text("Number of nodes in result : "), new Text(""));
+		peer.write(new Text(""), new Text(""));
+		for(int i=0;i<taskNum;i++) {
+			List<Node> result=resultLists.get(i);
+			peer.write(new Text("\tpt"+i+" : "), new Text(""+result.size()));
+		}
+		peer.write(new Text(""), new Text(""));
+		peer.write(new Text("Time out :"), new Text(""+timeOut+"ms"));
+		peer.write(new Text(""), new Text(""));
+		peer.write(new Text("-------"), new Text("---------------------------------------------------------"));
+	}
+
+	private void query(Step xpath) throws IOException, SyncException, InterruptedException {
 
 		com.sendNode(0, pt.getRoot());
 		sync();
 
 		if (isMarster()) {
-			resultLists = com.receiveFromAllPeer();
+			resultLists = com.receiveNodesFromAllPeer();
 		}
 		sync();
 
@@ -72,11 +106,21 @@ public class Querier {
 			List<Node> inputList = com.receiveNodeList();
 			queryWithAixs(step.getAxis(), inputList, step.getNameTest());
 
+			Step predicate = step.getPredicate();
+			if (predicate != null) {
+				// Querying predicate. his block will be executed when a query has a predicate.
+
+				pQuerier.init(resultLists);
+				pQuerier.query(predicate);
+				pQuerier.proccessPredicate(resultLists);
+
+			}
+
 			step = step.getNext();
+			sync();
 			// break;
 		}
 
-		return null;
 	}
 
 	public void queryWithAixs(Axis axis, List<Node> inputList, String test)
@@ -102,12 +146,6 @@ public class Querier {
 			queryFollowingSibling(inputList, test);
 		}
 
-		if (isMarster()) {
-			System.out.println();
-			System.out.println("Step : " + axis + ":" + test);
-			System.out.println("----------------------------------");
-			Utils.print(resultLists);
-		}
 		sync();
 
 	}
@@ -120,7 +158,7 @@ public class Querier {
 		sync();
 
 		if (isMarster()) {
-			resultLists = com.receiveFromAllPeer();
+			resultLists = com.receiveNodesFromAllPeer();
 		}
 
 		sync();
@@ -136,7 +174,7 @@ public class Querier {
 		sync();
 
 		if (isMarster()) {
-			resultLists = com.receiveFromAllPeer();
+			resultLists = com.receiveNodesFromAllPeer();
 		}
 
 		sync();
@@ -172,7 +210,7 @@ public class Querier {
 
 		if (isMarster()) {
 
-			List<List<Node>> responseLists = com.receiveFromAllPeer();
+			List<List<Node>> responseLists = com.receiveNodesFromAllPeer();
 
 			for (int i = 0; i < taskNum; i++) {
 
@@ -200,7 +238,7 @@ public class Querier {
 		sync();
 
 		if (isMarster()) {
-			resultLists = com.receiveFromAllPeer();
+			resultLists = com.receiveNodesFromAllPeer();
 		}
 
 		sync();
@@ -214,7 +252,7 @@ public class Querier {
 		// Local query
 		List<Node> res1 = pt.findFolSibNodes(inputList, test);
 		com.sendNodeList(0, res1);
-		res1=null;
+		res1 = null;
 
 		sync();
 
@@ -222,8 +260,8 @@ public class Querier {
 
 		if (isMarster()) {
 
-			outputLists = com.receiveFromAllPeer();
-			
+			outputLists = com.receiveNodesFromAllPeer();
+
 			List<List<Node>> temList = new ArrayList<>();
 
 			// Preparing remote query
@@ -247,16 +285,16 @@ public class Querier {
 		sync();
 
 		List<Node> inputs = com.receiveNodeList();
-		
+
 		List<Node> res2 = pt.findParentNodes(inputs);
 		com.sendNodeList(0, res2);
-		res2=null;
+		res2 = null;
 
 		sync();
 
 		if (isMarster()) {
 
-			List<List<Node>> parentList = com.receiveFromAllPeer();
+			List<List<Node>> parentList = com.receiveNodesFromAllPeer();
 
 			List<RemoteNode> toBeQueried = new ArrayList<RemoteNode>();
 			for (int i = 0; i < taskNum; i++) {
@@ -279,17 +317,17 @@ public class Querier {
 		List<Node> remoteInputList = com.receiveNodeList();
 		List<Node> res3 = pt.findChildNodes(remoteInputList, test);
 		com.sendNodeList(0, res3);
-		res3=null;
+		res3 = null;
 
 		sync();
 
 		if (isMarster()) {
-			List<List<Node>> remoteOutputList = com.receiveFromAllPeer();
+			List<List<Node>> remoteOutputList = com.receiveNodesFromAllPeer();
 
 			// Merge results of local query and remote query
 			for (int i = 0; i < taskNum; i++) {
-				
-	            List<Node> tem = outputLists.get(i);
+
+				List<Node> tem = outputLists.get(i);
 				List<Node> remoteResult = remoteOutputList.get(i);
 
 				Set<Node> set = new HashSet<Node>();
@@ -338,11 +376,11 @@ public class Querier {
 		return peer.getPeerIndex() == 0;
 	}
 
-	public BSPPeer<LongWritable, Text, LongWritable, Text, Node> getPeer() {
+	public BSPPeer<LongWritable, Text, Text, Text, Message> getPeer() {
 		return peer;
 	}
 
-	public void setPeer(BSPPeer<LongWritable, Text, LongWritable, Text, Node> peer) {
+	public void setPeer(BSPPeer<LongWritable, Text, Text, Text, Message> peer) {
 		this.peer = peer;
 		taskNum = peer.getNumPeers();
 	}

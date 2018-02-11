@@ -1,6 +1,42 @@
-0	 +Root-1+(0, 4) 
-1	 A0+(0, 4) 
-2	 B1 
-3	 C2 
-4	 D4 
-5	 E3 
+	
+Q1 : 	/child::A/descendant::B/descendant::C/parent::B
+	
+Number of nodes in result : 	
+	
+	pt0 : 	1
+	pt1 : 	2
+	pt2 : 	2
+	pt3 : 	1
+	pt4 : 	1
+	
+Time out :	12ms
+	
+-------	---------------------------------------------------------
+	
+Q2 : 	/descendant::B/following-sibling::B
+	
+Number of nodes in result : 	
+	
+	pt0 : 	0
+	pt1 : 	1
+	pt2 : 	1
+	pt3 : 	1
+	pt4 : 	2
+	
+Time out :	8ms
+	
+-------	---------------------------------------------------------
+	
+Q3 : 	/descendant::B[following-sibling::B/child::C]/child::C
+	
+Number of nodes in result : 	
+	
+	pt0 : 	1
+	pt1 : 	0
+	pt2 : 	1
+	pt3 : 	0
+	pt4 : 	0
+	
+Time out :	19ms
+	
+-------	---------------------------------------------------------

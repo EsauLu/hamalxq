@@ -12,8 +12,18 @@ public class PNode{
         super();
         // TODO Auto-generated constructor stub
     }
+    
+    
 
-    public Node getNode() {
+//    public PNode(Node node, Link link) {
+//		super();
+//		this.node = node;
+//		this.link = link;
+//	}
+
+
+
+	public Node getNode() {
         return node;
     }
 
