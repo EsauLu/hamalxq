@@ -12,8 +12,14 @@ public class Main {
         // TODO Auto-generated method stub
         
         try {
-            
-            runBuildPartialTreesJob();
+
+        	String xml="ex";
+        	String xpath="1";
+        	if(args.length==2) {
+        		xml="x"+args[0];
+        		xpath="x"+args[1];
+        	}
+            runBuildPartialTreesJob(xml, xpath);
             
         } catch (Exception e) {
             // TODO: handle exception
@@ -22,7 +28,7 @@ public class Main {
 
     }
     
-    public static void runBuildPartialTreesJob() throws IllegalArgumentException, Exception{
+    public static void runBuildPartialTreesJob(String xml, String xp) throws IllegalArgumentException, Exception{
         
 //        String input="xml/ex";        
 //        String output="output/extrees";
@@ -32,9 +38,17 @@ public class Main {
 //        String output="output/x1";
 //        String xpath="xpath/XPaths2.txt";
         
-        String input="xml/x6";        
-        String output="output/x6";
-        String xpath="xpath/XPaths2.txt";
+//      String input="xml/x6";        
+//      String output="output/x6";
+//      String xpath="xpath/XPaths2.txt";
+        
+		String input = "xml/"+xml;
+		String output = "output/"+xml;
+		String xpath = "xpath/XPaths"+xp+".txt";
+
+		System.out.println(input);
+		System.out.println(output);
+		System.out.println(xpath);
         
         if(MyTask.runJob(input, output, xpath, taskNum)) {
             System.out.println("True");
