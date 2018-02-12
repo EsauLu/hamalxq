@@ -5,8 +5,6 @@ import cn.esau.hamalxq.jobs.MyTask;
 public class Main {
 	
 	//hama jar /home/esau/Desktop/workspace/hamalxq/target/hamalxq-0.0.1-SNAPSHOT.jar
-    
-    private static int taskNum=5;
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
@@ -15,11 +13,13 @@ public class Main {
 
         	String xml="ex";
         	String xpath="1";
-        	if(args.length==2) {
+        	int taskNum=1;
+        	if(args.length==3) {
         		xml="x"+args[0];
         		xpath="x"+args[1];
+        		taskNum=Integer.parseInt(args[2]);
         	}
-            runBuildPartialTreesJob(xml, xpath);
+            runBuildPartialTreesJob(xml, xpath, taskNum);
             
         } catch (Exception e) {
             // TODO: handle exception
@@ -28,7 +28,7 @@ public class Main {
 
     }
     
-    public static void runBuildPartialTreesJob(String xml, String xp) throws IllegalArgumentException, Exception{
+    public static void runBuildPartialTreesJob(String xml, String xp, int taskNum) throws IllegalArgumentException, Exception{
         
 //        String input="xml/ex";        
 //        String output="output/extrees";
