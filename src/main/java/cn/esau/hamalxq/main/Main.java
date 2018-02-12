@@ -49,6 +49,7 @@ public class Main {
 		System.out.println(input);
 		System.out.println(output);
 		System.out.println(xpath);
+		System.out.println(taskNum);
         
         if(MyTask.runJob(input, output, xpath, taskNum)) {
             System.out.println("True");

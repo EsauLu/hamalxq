@@ -19,6 +19,7 @@ public class MyTask {
         conf.set("xpath", xpath);
 
         BSPJob bsp = new BSPJob(conf, MyTask.class);
+        
         // Set the job name
         bsp.setJobName("Partial trees building task");
         bsp.setBspClass(LxqBSP.class);
