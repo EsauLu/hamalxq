@@ -16,7 +16,7 @@ public class Main {
         	int taskNum=1;
         	if(args.length==3) {
         		xml="x"+args[0];
-        		xpath="x"+args[1];
+        		xpath=args[1];
         		taskNum=Integer.parseInt(args[2]);
         	}
             runBuildPartialTreesJob(xml, xpath, taskNum);
