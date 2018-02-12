@@ -33,30 +33,36 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
         // TODO Auto-generated method stub
         super.setup(peer);
 
-        com=new Communication(peer);
-        
-        querier=new Querier();
-        querier.setPeer(peer);        
+        try {
+			com=new Communication(peer);
+			
+			querier=new Querier();
+			querier.setPeer(peer);        
 
-        HamaConfiguration conf = peer.getConfiguration();
-        String xpath = conf.get("xpath");
-        Path path = new Path(xpath);
-        
-        FileSystem fs = path.getFileSystem(conf);
-        FSDataInputStream fin = fs.open(path);
-        
-        System.out.println(path.toString());
-        
-        StringBuilder sb=new StringBuilder();
-        byte[] buff=new byte[1024];
-        int len=0;
-        while((len=fin.read(buff))!=-1) {
-            String tem=new String(buff, 0, len);
-            sb.append(tem);
-        }
-        xpathMap=XPathParser.getXPaths(sb.toString().split("\n"));
-        
-        querier.setXpathMap(xpathMap);
+			HamaConfiguration conf = peer.getConfiguration();
+			String xpath = conf.get("xpath");
+			Path path = new Path(xpath);
+			
+			FileSystem fs = path.getFileSystem(conf);
+			FSDataInputStream fin = fs.open(path);
+			
+			System.out.println(path.toString());
+			
+			StringBuilder sb=new StringBuilder();
+			byte[] buff=new byte[1024];
+			int len=0;
+			while((len=fin.read(buff))!=-1) {
+			    String tem=new String(buff, 0, len);
+			    sb.append(tem);
+			}
+			xpathMap=XPathParser.getXPaths(sb.toString().split("\n"));
+			
+			querier.setXpathMap(xpathMap);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
         
     }
 
@@ -70,7 +76,13 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
     public void bsp(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
         // TODO Auto-generated method stub
 
-        buildPartialTree(peer);
+        try {
+			buildPartialTree(peer);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
 
     }
 
