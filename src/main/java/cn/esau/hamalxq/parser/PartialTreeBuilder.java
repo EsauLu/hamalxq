@@ -298,8 +298,8 @@ public class PartialTreeBuilder {
 				auxList.remove(auxList.size() - 1);
 			}
 			for (Node node : auxList) {
-				Node tem = NodeFactory.createNode(node.getTagName(), node.getType(), node.getPid());
-				com.sendNode(i + 1, tem);
+//				Node tem = NodeFactory.createNode(node.getTagName(), node.getType(), node.getPid());
+				com.sendNode(i + 1, node);
 			}
 		}
 
