@@ -25,94 +25,109 @@ import cn.esau.hamalxq.entry.Step;
 
 public class PQuerier {
 
-	private PartialTree pt;
+    private PartialTree pt;
 
-	private BSPPeer<LongWritable, Text, Text, Text, Message> peer;
+    private BSPPeer<LongWritable, Text, Text, Text, Message> peer;
 
-	private int taskNum = 0;
+    private int taskNum = 0;
 
-	private Communication com;
+    private Communication com;
 
-	private List<List<PNode>> resultLists;
+    private List<List<PNode>> resultLists;
 
-	public PQuerier() throws IOException, SyncException, InterruptedException {
-		super();
-	}
+    public PQuerier() throws IOException, SyncException, InterruptedException {
+        super();
+    }
 
-	public PQuerier(PartialTree pt, BSPPeer<LongWritable, Text, Text, Text, Message> peer,
-			Communication com) throws IOException, SyncException, InterruptedException {
-		super();
-		this.pt = pt;
-		this.peer = peer;
-		this.com = com;
-		this.taskNum=peer.getNumPeers();
-	}
+    public PQuerier(PartialTree pt, BSPPeer<LongWritable, Text, Text, Text, Message> peer, Communication com)
+            throws IOException, SyncException, InterruptedException {
+        super();
+        this.pt = pt;
+        this.peer = peer;
+        this.com = com;
+        this.taskNum = peer.getNumPeers();
+    }
 
-	public void init(List<List<Node>> inputLists) {
-		if(isMarster()) {
-			resultLists = preparePredicate(inputLists);
-		}
-	}
-	
-	public void setInputLists(List<List<PNode>> resultLists) {
-		this.resultLists = resultLists;
-	}
+    public void init(List<List<Node>> inputLists) {
+        if (isMarster()) {
+            resultLists = preparePredicate(inputLists);
+        }
+    }
 
-	public List<List<Node>> getResultLists(){
-		return null;
-	}
+    public void setInputLists(List<List<PNode>> resultLists) {
+        this.resultLists = resultLists;
+    }
 
-	public void query(Step pstep) throws IOException, SyncException, InterruptedException {
-		
-		Step step=pstep;
-		
-		while(step!=null) {
+    public List<List<Node>> getResultLists() {
+        return null;
+    }
 
-			if (isMarster()) {
-				com.sendPNodeLists(resultLists);
-			}
-			sync();
-			
-			List<PNode> inputList=com.receivePNodeList();
-			queryWithAixs(step.getAxis(), inputList, step.getNameTest());
-			
+    public void query(Step pstep) throws IOException, SyncException, InterruptedException {
+
+        Step step = pstep;
+
+        while (step != null) {
+
+            if (isMarster()) {
+                com.sendPNodeLists(resultLists);
+            }
+            sync();
+
+            List<PNode> inputList = com.receivePNodeList();
+            queryWithAixs(step.getAxis(), inputList, step.getNameTest());
+
             Step predicate = step.getPredicate();
             if (predicate != null) {
-                // Querying predicate. his block will be executed when a query has a predicate. 
-            	
-            	PQuerier pQuerier=new PQuerier(pt, peer, com);     
-            	
-            	if(isMarster()) {                	
-                    List<List<PNode>> intermadiate = regroupResults(resultLists);             
+                // Querying predicate. his block will be executed when a query has a predicate.
+
+                PQuerier pQuerier = new PQuerier(pt, peer, com);
+
+                if (isMarster()) {
+                    List<List<PNode>> intermadiate = regroupResults(resultLists);
                     pQuerier.setInputLists(intermadiate);
-            	}
-            	sync();
-                
+                }
+                sync();
+
                 pQuerier.query(predicate);
 
                 List<List<Node>> nodeLists = null;
-                if(isMarster()) {
+                if (isMarster()) {
                     nodeLists = new ArrayList<>();
-                    for(int i=0;i<taskNum;i++) {
-                    	nodeLists.add(new ArrayList<Node>());
+                    for (int i = 0; i < taskNum; i++) {
+                        nodeLists.add(new ArrayList<Node>());
                     }
                 }
                 sync();
-                
+
                 pQuerier.proccessPredicate(nodeLists);
 
-                if(isMarster()) {
+                if (isMarster()) {
                     resultLists = filterResults(resultLists, nodeLists);
                 }
                 sync();
-            	
+
             }
+            
+//            if(isMarster()) {
+//                for(int i=0;i<taskNum;i++) {
+//                    List<PNode> result=resultLists.get(i);
+//                    StringBuilder sb=new StringBuilder();
+//                    for(PNode node: result) {
+//                        sb.append(node.getNode());
+//                    }
+//                    peer.write(new Text("\t\tpstep : "), new Text(step.toString()));
+//                    peer.write(new Text("\t\tNode : "), new Text(sb.toString()));
+//                    peer.write(new Text(""), new Text(""));
+//                }
+//                peer.write(new Text(""), new Text(""));
+//            }
+//            sync();
+            
+            step = step.getNext();
+            sync();
+        }
 
-			step = step.getNext();
-			sync();
-		}
-
-	}
+    }
 
     public static List<List<PNode>> regroupResults(List<List<PNode>> inputLists) {
 
@@ -137,7 +152,7 @@ public class PQuerier {
         return outputLists;
 
     }
-    
+
     public List<List<PNode>> preparePredicate(List<List<Node>> inputLists) {
 
         List<List<PNode>> outputLists = new ArrayList<List<PNode>>();
@@ -155,54 +170,51 @@ public class PQuerier {
 
     }
 
+    public void queryWithAixs(Axis axis, List<PNode> inputList, String test) throws IOException, SyncException, InterruptedException {
 
-	public void queryWithAixs(Axis axis, List<PNode> inputList, String test)
-			throws IOException, SyncException, InterruptedException {
+        // Child axis
+        if (Axis.CHILD.equals(axis)) {
+            queryChid(inputList, test);
+        }
 
-		// Child axis
-		if (Axis.CHILD.equals(axis)) {
-			queryChid(inputList, test);
-		}
+        // Descendant axis
+        if (Axis.DESCENDANT.equals(axis)) {
+            queryDescendant(inputList, test);
+        }
 
-		// Descendant axis
-		if (Axis.DESCENDANT.equals(axis)) {
-			queryDescendant(inputList, test);
-		}
+        // Parent axis
+        if (Axis.PARENT.equals(axis)) {
+            queryParent(inputList, test);
+        }
 
-		// Parent axis
-		if (Axis.PARENT.equals(axis)) {
-			queryParent(inputList, test);
-		}
+        // Following-sibling axis
+        if (Axis.FOLLOWING_SIBLING.equals(axis)) {
+            queryFollowingSibling(inputList, test);
+        }
 
-		// Following-sibling axis
-		if (Axis.FOLLOWING_SIBLING.equals(axis)) {
-			queryFollowingSibling(inputList, test);
-		}
+        sync();
 
-		sync();
+    }
 
-	}
+    private void queryChid(List<PNode> inputList, String test) throws IOException, SyncException, InterruptedException {
+        // TODO Auto-generated method stub
 
-	private void queryChid(List<PNode> inputList, String test) throws IOException, SyncException, InterruptedException {
-		// TODO Auto-generated method stub
+        List<PNode> result = pt.findChildPNodes(inputList, test);
+        com.sendPNodeList(0, result);
 
-		List<PNode> result=pt.findChildPNodes(inputList, test);
-		com.sendPNodeList(0, result);
+        sync();
 
-		sync();
+        if (isMarster()) {
+            resultLists = com.receivePNodesFromAllPeer();
+        }
 
-		if (isMarster()) {
-			resultLists = com.receivePNodesFromAllPeer();
-		}
+        sync();
 
-		sync();
-
-	}
-	
+    }
 
     public void proccessPredicate(List<List<Node>> outputLists) throws IOException, SyncException, InterruptedException {
-    	
-    	if(isMarster()) {
+
+        if (isMarster()) {
 
             List<Link> allLinks = new ArrayList<>();
             for (List<PNode> list : resultLists) {
@@ -216,275 +228,269 @@ public class PQuerier {
             for (Link link : allLinks) {
                 List<Node> uids = uidLists.get(link.getPid());
                 if (uids == null) {
-                	uids=new ArrayList<Node>();
+                    uids = new ArrayList<Node>();
                     uidLists.put(link.getPid(), uids);
                 }
                 uids.add(new Node(link.getUid()));
             }
-            
-            for(Integer p: uidLists.keySet()) {
-            	com.sendNodeList(p, uidLists.get(p));
+
+            for (Integer p : uidLists.keySet()) {
+                com.sendNodeList(p, uidLists.get(p));
             }
-                        
-    	}
-    	
-    	sync();
-    	
-    	List<Node> inputs=com.receiveNodeList();
-    	List<Node> outputs=pt.findNodesByUid(inputs);
-    	com.sendNodeList(0, outputs);
-    	
-    	sync();
-    	
-    	if(isMarster()) {
-    		List<List<Node>> temOutputList=com.receiveNodesFromAllPeer();
-    		for(int i=0;i<taskNum;i++) {
-    			List<Node> tem = temOutputList.get(i);
-    			List<Node> output=outputLists.get(i);
-    			output.clear();
-    			output.addAll(tem);
-    		}
-    	}
-    	
-    	sync();
-    	
-    	shareNodes(outputLists);
 
-		sync();
+        }
+
+        sync();
+
+        List<Node> inputs = com.receiveNodeList();        
+        List<Node> outputs = pt.findNodesByUid(inputs);
+        com.sendNodeList(0, outputs);
+
+        sync();
+
+        if (isMarster()) {
+            List<List<Node>> temOutputList = com.receiveNodesFromAllPeer();
+            for (int i = 0; i < taskNum; i++) {
+                List<Node> tem = temOutputList.get(i);
+                List<Node> output = outputLists.get(i);
+                output.clear();
+                output.addAll(tem);
+            }
+        }
+
+        sync();
+
+        shareNodes(outputLists);
+
+        sync();
     }
-    
 
-	public void shareNodes(List<List<Node>> outputLists) throws IOException, SyncException, InterruptedException {
+    public void shareNodes(List<List<Node>> outputLists) throws IOException, SyncException, InterruptedException {
 
-		if (isMarster()) {
-			List<Node> toBeShare = new ArrayList<Node>();
-			Set<Long> toBeShareUidSet = new HashSet<>();
-			for (int i = 0; i < taskNum; i++) {
-				for (Node node : outputLists.get(i)) {
-					if (!NodeType.CLOSED_NODE.equals(node.getType()) && !toBeShareUidSet.contains(node.getUid())) {
-						toBeShareUidSet.add(node.getUid());
-						toBeShare.add(node);
-					}
-				}
-			}
+        if (isMarster()) {
+            List<Node> toBeShare = new ArrayList<Node>();
+            Set<Long> toBeShareUidSet = new HashSet<>();
+            for (int i = 0; i < taskNum; i++) {
+                for (Node node : outputLists.get(i)) {
+                    if (!NodeType.CLOSED_NODE.equals(node.getType()) && !toBeShareUidSet.contains(node.getUid())) {
+                        toBeShareUidSet.add(node.getUid());
+                        toBeShare.add(node);
+                    }
+                }
+            }
 
-			com.sendNodesToAllWorker(toBeShare);
-		}
+            com.sendNodesToAllWorker(toBeShare);
+        }
 
-		sync();
+        sync();
 
-		List<Node> toBeShare = com.receiveNodeList();
-		List<Node> results = pt.findCorrespondingNodes(toBeShare);
-		com.sendNodeList(0, results);
+        List<Node> toBeShare = com.receiveNodeList();
+        List<Node> results = pt.findCorrespondingNodes(toBeShare);
+        com.sendNodeList(0, results);
 
-		sync();
+        sync();
 
-		if (isMarster()) {
+        if (isMarster()) {
 
-			List<List<Node>> responseLists = com.receiveNodesFromAllPeer();
+            List<List<Node>> responseLists = com.receiveNodesFromAllPeer();
 
-			for (int i = 0; i < taskNum; i++) {
+            for (int i = 0; i < taskNum; i++) {
 
-				Set<Node> set = new HashSet<Node>();
-				List<Node> inputList = outputLists.get(i);
+                Set<Node> set = new HashSet<Node>();
+                List<Node> inputList = outputLists.get(i);
 
-				set.addAll(inputList);
-				set.addAll(responseLists.get(i));
+                set.addAll(inputList);
+                set.addAll(responseLists.get(i));
 
-				inputList.clear();
-				inputList.addAll(set);
+                inputList.clear();
+                inputList.addAll(set);
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
+    private void queryParent(List<PNode> inputList, String test) throws IOException, SyncException, InterruptedException {
+        // TODO Auto-generated method stub
 
+        com.sendPNodeList(0, pt.findParentPNodes(inputList, test));
 
-	private void queryParent(List<PNode> inputList, String test)
-			throws IOException, SyncException, InterruptedException {
-		// TODO Auto-generated method stub
+        sync();
 
-		com.sendPNodeList(0, pt.findParentPNodes(inputList, test));
+        if (isMarster()) {
+            resultLists = com.receivePNodesFromAllPeer();
+        }
 
-		sync();
+        sync();
 
-		if (isMarster()) {
-			resultLists = com.receivePNodesFromAllPeer();
-		}
+        sharePNodes();
 
-		sync();
+    }
 
-		sharePNodes();
+    public void sharePNodes() throws IOException, SyncException, InterruptedException {
 
-	}
+        if (isMarster()) {
+            List<PNode> toBeShare = new ArrayList<PNode>();
+            Set<Long> toBeShareUidSet = new HashSet<>();
+            for (int i = 0; i < taskNum; i++) {
+                for (PNode pnode : resultLists.get(i)) {
+                    Node node = pnode.getNode();
+                    if (!NodeType.CLOSED_NODE.equals(node.getType()) && !toBeShareUidSet.contains(node.getUid())) {
+                        toBeShareUidSet.add(node.getUid());
+                        toBeShare.add(pnode);
+                    }
+                }
+            }
 
-	public void sharePNodes() throws IOException, SyncException, InterruptedException {
+            com.sendPNodesToAllWorker(toBeShare);
+        }
 
-		if (isMarster()) {
-			List<PNode> toBeShare = new ArrayList<PNode>();
-			Set<Long> toBeShareUidSet = new HashSet<>();
-			for (int i = 0; i < taskNum; i++) {
-				for (PNode pnode : resultLists.get(i)) {
-					Node node=pnode.getNode();
-					if (!NodeType.CLOSED_NODE.equals(node.getType()) && !toBeShareUidSet.contains(node.getUid())) {
-						toBeShareUidSet.add(node.getUid());
-						toBeShare.add(pnode);
-					}
-				}
-			}
+        sync();
 
-			com.sendPNodesToAllWorker(toBeShare);
-		}
+        List<PNode> toBeShare = com.receivePNodeList();
+        List<PNode> results = pt.findCorrespondingPNodes(toBeShare);
+        com.sendPNodeList(0, results);
 
-		sync();
+        sync();
 
-		List<PNode> toBeShare = com.receivePNodeList();
-		List<PNode> results = pt.findCorrespondingPNodes(toBeShare);
-		com.sendPNodeList(0, results);
+        if (isMarster()) {
 
-		sync();
+            List<List<PNode>> responseLists = com.receivePNodesFromAllPeer();
 
-		if (isMarster()) {
+            for (int i = 0; i < taskNum; i++) {
 
-			List<List<PNode>> responseLists = com.receivePNodesFromAllPeer();
+                Set<PNode> set = new HashSet<PNode>();
+                List<PNode> inputList = resultLists.get(i);
 
-			for (int i = 0; i < taskNum; i++) {
+                set.addAll(inputList);
+                set.addAll(responseLists.get(i));
 
-				Set<PNode> set = new HashSet<PNode>();
-				List<PNode> inputList = resultLists.get(i);
+                inputList.clear();
+                inputList.addAll(set);
 
-				set.addAll(inputList);
-				set.addAll(responseLists.get(i));
+            }
 
-				inputList.clear();
-				inputList.addAll(set);
+        }
 
-			}
+    }
 
-		}
+    private void queryDescendant(List<PNode> inputList, String test) throws IOException, SyncException, InterruptedException {
+        // TODO Auto-generated method stub
 
-	}
+        com.sendPNodeList(0, pt.findDescendantPNodes(inputList, test));
 
-	private void queryDescendant(List<PNode> inputList, String test)
-			throws IOException, SyncException, InterruptedException {
-		// TODO Auto-generated method stub
+        sync();
 
-		com.sendPNodeList(0, pt.findDescendantPNodes(inputList, test));
+        if (isMarster()) {
+            resultLists = com.receivePNodesFromAllPeer();
+        }
 
-		sync();
+        sync();
 
-		if (isMarster()) {
-			resultLists = com.receivePNodesFromAllPeer();
-		}
+    }
 
-		sync();
+    private void queryFollowingSibling(List<PNode> inputList, String test) throws IOException, SyncException, InterruptedException {
+        // TODO Auto-generated method stub
 
-	}
+        // Local query
+        List<PNode> res1 = pt.findFolSibPNodes(inputList, test);
+        com.sendPNodeList(0, res1);
+        res1 = null;
 
-	private void queryFollowingSibling(List<PNode> inputList, String test)
-			throws IOException, SyncException, InterruptedException {
-		// TODO Auto-generated method stub
+        sync();
 
-		// Local query
-		List<PNode> res1 = pt.findFolSibPNodes(inputList, test);
-		com.sendPNodeList(0, res1);
-		res1 = null;
+        List<List<PNode>> outputLists = null;
 
-		sync();
+        if (isMarster()) {
 
-		List<List<PNode>> outputLists = null;
+            outputLists = com.receivePNodesFromAllPeer();
 
-		if (isMarster()) {
+            List<List<PNode>> temList = new ArrayList<>();
 
-			outputLists = com.receivePNodesFromAllPeer();
+            // Preparing remote query
+            for (int i = 0; i < taskNum; i++) {
 
-			List<List<PNode>> temList = new ArrayList<>();
+                List<PNode> tem = new ArrayList<>();
+                List<PNode> input = resultLists.get(i);
+                for (PNode pnode : input) {
+                    Node node = pnode.getNode();
+                    if (!node.isRightOpenNode() && !node.isPreOpenNode()) {
+                        tem.add(pnode);
+                    }
+                }
+                temList.add(tem);
 
-			// Preparing remote query
-			for (int i = 0; i < taskNum; i++) {
+            }
 
-				List<PNode> tem = new ArrayList<>();
-				List<PNode> input = resultLists.get(i);
-				for (PNode pnode : input) {
-					Node node=pnode.getNode();
-					if (!node.isRightOpenNode() && !node.isPreOpenNode()) {
-						tem.add(pnode);
-					}
-				}
-				temList.add(tem);
+            com.sendPNodeLists(temList);
 
-			}
+        }
 
-			com.sendPNodeLists(temList);
+        sync();
 
-		}
+        List<PNode> inputs = com.receivePNodeList();
 
-		sync();
+        List<PNode> res2 = pt.findParentPNodes(inputs);
+        com.sendPNodeList(0, res2);
+        res2 = null;
 
-		List<PNode> inputs = com.receivePNodeList();
+        sync();
 
-		List<PNode> res2 = pt.findParentPNodes(inputs);
-		com.sendPNodeList(0, res2);
-		res2 = null;
+        if (isMarster()) {
 
-		sync();
+            List<List<PNode>> parentList = com.receivePNodesFromAllPeer();
 
-		if (isMarster()) {
+            List<RemoteNode> toBeQueried = new ArrayList<RemoteNode>();
+            for (int i = 0; i < taskNum; i++) {
+                for (PNode pNode : parentList.get(i)) {
+                    Node parent = pNode.getNode();
+                    if (parent.isRightOpenNode() || parent.isPreOpenNode()) {
+                        toBeQueried.add(new RemoteNode(parent, i + 1, parent.getEnd(), pNode.getLink()));
+                    }
+                }
+            }
 
-			List<List<PNode>> parentList = com.receivePNodesFromAllPeer();
+            // Regroup nodes by partial tree id
+            List<List<PNode>> remoteInputLists = regroupPNodes(toBeQueried);
 
-			List<RemoteNode> toBeQueried = new ArrayList<RemoteNode>();
-			for (int i = 0; i < taskNum; i++) {
-				for (PNode pNode : parentList.get(i)) {
-					Node parent=pNode.getNode();
-					if (parent.isRightOpenNode() || parent.isPreOpenNode()) {
-						toBeQueried.add(new RemoteNode(parent, i + 1, parent.getEnd(), pNode.getLink()));
-					}
-				}
-			}
+            com.sendPNodeLists(remoteInputLists);
+        }
 
-			// Regroup nodes by partial tree id
-			List<List<PNode>> remoteInputLists = regroupPNodes(toBeQueried);
+        sync();
 
-			com.sendPNodeLists(remoteInputLists);
-		}
+        // Remote query
+        List<PNode> remoteInputList = com.receivePNodeList();
+        List<PNode> res3 = pt.findChildPNodes(remoteInputList, test);
+        com.sendPNodeList(0, res3);
+        res3 = null;
 
-		sync();
+        sync();
 
-		// Remote query
-		List<PNode> remoteInputList = com.receivePNodeList();
-		List<PNode> res3 = pt.findChildPNodes(remoteInputList, test);
-		com.sendPNodeList(0, res3);
-		res3 = null;
+        if (isMarster()) {
+            List<List<PNode>> remoteOutputList = com.receivePNodesFromAllPeer();
 
-		sync();
+            // Merge results of local query and remote query
+            for (int i = 0; i < taskNum; i++) {
 
-		if (isMarster()) {
-			List<List<PNode>> remoteOutputList = com.receivePNodesFromAllPeer();
+                List<PNode> tem = outputLists.get(i);
+                List<PNode> remoteResult = remoteOutputList.get(i);
 
-			// Merge results of local query and remote query
-			for (int i = 0; i < taskNum; i++) {
+                Set<PNode> set = new HashSet<PNode>();
+                set.addAll(tem);
+                set.addAll(remoteResult);
 
-				List<PNode> tem = outputLists.get(i);
-				List<PNode> remoteResult = remoteOutputList.get(i);
+                tem.clear();
+                tem.addAll(set);
+            }
 
-				Set<PNode> set = new HashSet<PNode>();
-				set.addAll(tem);
-				set.addAll(remoteResult);
+            resultLists = outputLists;
 
-				tem.clear();
-				tem.addAll(set);
-			}
+        }
 
-			resultLists = outputLists;
+        sync();
 
-		}
-
-		sync();
-
-	}
+    }
 
     private List<List<PNode>> regroupPNodes(List<RemoteNode> toBeQueried) {
         List<List<PNode>> remoteInputList = new ArrayList<>();
@@ -503,8 +509,8 @@ public class PQuerier {
             remoteInputList.add(remoteInput);
         }
         return remoteInputList;
-    }    
-    
+    }
+
     public static List<List<PNode>> filterResults(List<List<PNode>> intermadiate, List<List<Node>> inputLists) {
 
         List<List<PNode>> outputLists = new ArrayList<List<PNode>>();
@@ -552,30 +558,30 @@ public class PQuerier {
 
     }
 
-	private void sync() throws IOException, SyncException, InterruptedException {
-		// TODO Auto-generated method stub
-		peer.sync();
-	}
+    private void sync() throws IOException, SyncException, InterruptedException {
+        // TODO Auto-generated method stub
+        peer.sync();
+    }
 
-	private boolean isMarster() {
-		return peer.getPeerIndex() == 0;
-	}
+    private boolean isMarster() {
+        return peer.getPeerIndex() == 0;
+    }
 
-	public BSPPeer<LongWritable, Text, Text, Text, Message> getPeer() {
-		return peer;
-	}
+    public BSPPeer<LongWritable, Text, Text, Text, Message> getPeer() {
+        return peer;
+    }
 
-	public void setPeer(BSPPeer<LongWritable, Text, Text, Text, Message> peer) {
-		this.peer = peer;
-		taskNum = peer.getNumPeers();
-	}
+    public void setPeer(BSPPeer<LongWritable, Text, Text, Text, Message> peer) {
+        this.peer = peer;
+        taskNum = peer.getNumPeers();
+    }
 
-	public PartialTree getPt() {
-		return pt;
-	}
+    public PartialTree getPt() {
+        return pt;
+    }
 
-	public void setPt(PartialTree pt) {
-		this.pt = pt;
-	}
+    public void setPt(PartialTree pt) {
+        this.pt = pt;
+    }
 
 }

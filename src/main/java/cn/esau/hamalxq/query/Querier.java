@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -72,27 +73,28 @@ public class Querier {
 	private void printResultLists(long timeOut, String key, Step xpath)
 			throws IOException, SyncException, InterruptedException {
 //		Utils.print(resultLists);
-		peer.write(new Text(""), new Text(""));
 		peer.write(new Text(key+" : "), new Text("/"+xpath.toXPath()));
 		peer.write(new Text(""), new Text(""));
 		peer.write(new Text("Number of nodes in result : "), new Text(""));
 		peer.write(new Text(""), new Text(""));
-		long nodeCount=0;
+		long count = 0;
 		for(int i=0;i<taskNum;i++) {
 			List<Node> result=resultLists.get(i);
 			for(Node node: result) {
-				if(node.isLeftOpenNode()||node.isClosedNode()) {
-					nodeCount++;
-				}
+			    if(node.isClosedNode()||node.isLeftOpenNode()) {
+			        count++;
+			    }
 			}
 			peer.write(new Text("\tpt"+i+" : "), new Text(""+result.size()));
+	        peer.write(new Text(""), new Text(""));
 		}
 		peer.write(new Text(""), new Text(""));
-		peer.write(new Text("Number of all nodes : "), new Text(""+nodeCount));
+		peer.write(new Text("Number of all nodes : "), new Text(""+count));
 		peer.write(new Text(""), new Text(""));
 		peer.write(new Text("Time out :"), new Text(""+timeOut+"ms"));
 		peer.write(new Text(""), new Text(""));
 		peer.write(new Text("-------"), new Text("---------------------------------------------------------"));
+        peer.write(new Text(""), new Text(""));
 	}
 
 	private void query(Step xpath) throws IOException, SyncException, InterruptedException {
@@ -123,10 +125,24 @@ public class Querier {
 				pQuerier.proccessPredicate(resultLists);
 
 			}
-
-			step = step.getNext();
-			sync();
-			// break;
+			
+//			if(isMarster()) {
+//		        for(int i=0;i<taskNum;i++) {
+//		            List<Node> result=resultLists.get(i);
+//		            StringBuilder sb=new StringBuilder();
+// 		            for(Node node: result) {
+//		                sb.append(node);
+//		            }
+//		            peer.write(new Text("\tstep : "), new Text(step.toString()));
+//                    peer.write(new Text("\tNode : "), new Text(sb.toString()));
+//		            peer.write(new Text(""), new Text(""));
+//		        }
+//		        peer.write(new Text(""), new Text(""));
+//			}
+//			
+//			sync();
+            step = step.getNext();
+            sync();
 		}
 
 	}

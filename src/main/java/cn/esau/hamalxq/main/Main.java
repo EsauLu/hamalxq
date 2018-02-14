@@ -41,7 +41,7 @@ public class Main {
 //      String input="xml/x6";        
 //      String output="output/x6";
 //      String xpath="xpath/XPaths2.txt";
-        
+
 		String input = "xml/"+xml;
 		String output = "output/"+xml;
 		String xpath = "xpath/XPaths"+xp+".txt";

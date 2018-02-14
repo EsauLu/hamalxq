@@ -1,13 +1,16 @@
 	
+Partial-Trees builded time out : 	25ms
+	
 Q1 : 	/child::A/descendant::B/descendant::C/parent::B
 	
 Number of nodes in result : 	
 	
 	pt0 : 	4
 	
+	
 Number of all nodes : 	4
 	
-Time out :	4ms
+Time out :	3ms
 	
 -------	---------------------------------------------------------
 	
@@ -16,6 +19,7 @@ Q2 : 	/descendant::B/following-sibling::B
 Number of nodes in result : 	
 	
 	pt0 : 	3
+	
 	
 Number of all nodes : 	3
 	
@@ -29,8 +33,23 @@ Number of nodes in result :
 	
 	pt0 : 	2
 	
+	
 Number of all nodes : 	2
 	
-Time out :	5ms
+Time out :	4ms
 	
 -------	---------------------------------------------------------
+	
+Q4 : 	/descendant::B[child::C]
+	
+Number of nodes in result : 	
+	
+	pt0 : 	4
+	
+	
+Number of all nodes : 	4
+	
+Time out :	1ms
+	
+-------	---------------------------------------------------------
+	

@@ -14,11 +14,13 @@ import org.apache.hama.bsp.BSPPeer;
 import org.apache.hama.bsp.sync.SyncException;
 
 import cn.esau.hamalxq.entry.Message;
+import cn.esau.hamalxq.entry.PartialTree;
 import cn.esau.hamalxq.entry.Step;
 import cn.esau.hamalxq.parser.PartialTreeBuilder;
 import cn.esau.hamalxq.parser.XPathParser;
 import cn.esau.hamalxq.query.Communication;
 import cn.esau.hamalxq.query.Querier;
+import cn.esau.hamalxq.utils.Utils;
 
 public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
 
@@ -88,7 +90,19 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
 
     private void buildPartialTree(BSPPeer<LongWritable, Text, Text, Text, Message> peer)
             throws IOException, SyncException, InterruptedException {
-        querier.setPt(new PartialTreeBuilder(com, peer).buildPartialTree());
+        
+        long t1=System.currentTimeMillis();
+        PartialTree pt=new PartialTreeBuilder(com, peer).buildPartialTree();
+        long t2=System.currentTimeMillis();
+        
+        peer.write(new Text(), new Text());
+        peer.write(new Text("Partial-Trees builded time out : "), new Text((t2-t1)+"ms"));
+        peer.write(new Text(), new Text());
+        
+//        peer.write(new Text("Partial-tree : "), new Text(Utils.getTreeString(pt.getPid(), pt.getRoot())));
+//        peer.write(new Text(), new Text());
+        
+        querier.setPt(pt);
         querier.start();
     }
 

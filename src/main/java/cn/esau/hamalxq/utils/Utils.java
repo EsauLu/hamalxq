@@ -19,8 +19,8 @@ public class Utils {
         }
 
         // List<Node> list = root.getChildList();
-        StringBuilder sb=new StringBuilder();
-        sb.append(pid+" : ");
+        StringBuilder sb = new StringBuilder();
+        sb.append(pid + " : ");
 
         for (int i = 0; i < root.getChildNum(); i++) {
 
@@ -34,11 +34,11 @@ public class Utils {
                 Node node = que.removeFirst();
 
                 if (NodeType.CLOSED_NODE.equals(node.getType())) {
-                	sb.append(node);
+                    sb.append(node);
                 } else {
                     String s = node.toString();
                     s = s.substring(0, s.length() - 1);
-                    sb.append(s+" ");
+                    sb.append(s + " ");
                 }
 
                 for (int j = 0; j < node.getChildNum(); j++) {
@@ -58,9 +58,9 @@ public class Utils {
         if (root == null) {
             return;
         }
-        
-        StringBuilder sb=new StringBuilder();
-        sb.append(pid+" : ");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(pid + " : ");
 
         List<Node> list = new ArrayList<>();
         list.add(root);
@@ -75,13 +75,13 @@ public class Utils {
                 Node node = que.removeFirst();
 
                 if (NodeType.CLOSED_NODE.equals(node.getType())) {
-//                    System.out.print(node);
-                	sb.append(node);
+                    // System.out.print(node);
+                    sb.append(node);
                 } else {
                     String s = node.toString();
                     s = s.substring(0, s.length() - 1);
-//                    System.out.print(s + " ");
-                    sb.append(s+" ");
+                    // System.out.print(s + " ");
+                    sb.append(s + " ");
                 }
 
                 for (int j = 0; j < node.getChildNum(); j++) {
@@ -93,6 +93,38 @@ public class Utils {
         }
 
         System.out.println(sb.toString());
+
+    }
+
+    public static String getTreeString(int pid, Node root) {
+
+
+        if (root == null) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("pid = " + pid + "    ");
+
+        Deque<Node> que = new ArrayDeque<>();
+        que.addLast(root);
+
+        while (!que.isEmpty()) {
+
+            Node node = que.removeFirst();
+
+            String s = node.toString();
+            s = s.substring(0, s.length() - 1);
+            sb.append(s + "-(" + node.getDepth() + ")-("+node.getStart()+", "+node.getEnd()+")  ");
+
+            for (int j = 0; j < node.getChildNum(); j++) {
+                que.addLast(node.getChildByIndex(j));
+            }
+
+        }
+
+        return sb.toString();
 
     }
 
@@ -163,8 +195,8 @@ public class Utils {
     }
 
     public static void dfsWithDepth(int pid, Node root) {
-        StringBuilder sb=new StringBuilder();
-        sb.append(pid+" : ");
+        StringBuilder sb = new StringBuilder();
+        sb.append(pid + " : ");
 
         for (int i = 0; i < root.getChildNum(); i++) {
 
@@ -178,7 +210,7 @@ public class Utils {
 
                 String s = node.toString();
                 s = s.substring(0, s.length() - 1);
-//                System.out.print(s + "(" + node.getDepth() + ") ");
+                // System.out.print(s + "(" + node.getDepth() + ") ");
                 sb.append(s + "(" + node.getDepth() + ") ");
 
                 for (int j = node.getChildNum() - 1; j >= 0; j--) {
@@ -229,7 +261,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n");
-        
+
         int p = results.size();
         for (int j = 0; j < p; j++) {
             List<Node> result = results.get(j);
@@ -260,7 +292,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n");
-        
+
         int p = results.size();
         for (int j = 0; j < p; j++) {
             List<PNode> result = results.get(j);
@@ -269,7 +301,7 @@ public class Utils {
                 sb.append("null pt");
                 continue;
             }
-            for (PNode node : result) { 
+            for (PNode node : result) {
                 sb.append(node);
             }
 
@@ -282,31 +314,31 @@ public class Utils {
     }
 
     public static void printNods(int pid, List<Node> list) {
-        StringBuilder sb=new StringBuilder();
-        
-        sb.append(pid+" : ");
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(pid + " : ");
         for (Node node : list) {
             sb.append(node);
         }
         System.out.println(sb.toString());
     }
 
-    public static void printPNods(int pid,List<PNode> list) {
-    	
-        StringBuilder sb=new StringBuilder();
-        
-        sb.append(pid+" : ");
+    public static void printPNods(int pid, List<PNode> list) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(pid + " : ");
         for (PNode node : list) {
             sb.append(node);
         }
         System.out.println(sb.toString());
     }
 
-    public static void printRemoteNods(int pid,List<RemoteNode> list) {
-    	
-        StringBuilder sb=new StringBuilder();
-        
-        sb.append(pid+" : ");
+    public static void printRemoteNods(int pid, List<RemoteNode> list) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(pid + " : ");
         for (RemoteNode node : list) {
             sb.append(node);
         }

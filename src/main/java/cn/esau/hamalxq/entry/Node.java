@@ -15,7 +15,7 @@ public class Node implements WritableComparable<Node>{
     
     private int pid;
 
-    private String tagName;
+    private String tagName="Null Name";
 
     private NodeType type;
 
@@ -307,7 +307,7 @@ public class Node implements WritableComparable<Node>{
         // TODO Auto-generated method stub
         out.writeInt(pid);
         out.writeLong(uid);
-        out.writeUTF(tagName);
+        out.writeUTF(tagName==null?"Null Name":tagName);
         out.writeInt(type.getValue());
         out.writeInt(start);
         out.writeInt(end);
