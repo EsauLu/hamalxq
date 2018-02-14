@@ -108,20 +108,20 @@ public class PQuerier {
 
             }
             
-//            if(isMarster()) {
-//                for(int i=0;i<taskNum;i++) {
-//                    List<PNode> result=resultLists.get(i);
-//                    StringBuilder sb=new StringBuilder();
-//                    for(PNode node: result) {
-//                        sb.append(node.getNode());
-//                    }
-//                    peer.write(new Text("\t\tpstep : "), new Text(step.toString()));
-//                    peer.write(new Text("\t\tNode : "), new Text(sb.toString()));
-//                    peer.write(new Text(""), new Text(""));
-//                }
-//                peer.write(new Text(""), new Text(""));
-//            }
-//            sync();
+            if(isMarster()) {
+                for(int i=0;i<taskNum;i++) {
+                    List<PNode> result=resultLists.get(i);
+                    StringBuilder sb=new StringBuilder();
+                    for(PNode node: result) {
+                        sb.append(node.getNode());
+                    }
+                    peer.write(new Text("\t\tpstep : "), new Text(step.toString()));
+                    peer.write(new Text("\t\tNode : "), new Text(sb.toString()));
+                    peer.write(new Text(""), new Text(""));
+                }
+                peer.write(new Text(""), new Text(""));
+            }
+            sync();
             
             step = step.getNext();
             sync();
