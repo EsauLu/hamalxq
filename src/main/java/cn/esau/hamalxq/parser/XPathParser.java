@@ -21,7 +21,7 @@ public class XPathParser {
             int k = line.indexOf(' ');
             String key = line.substring(0, k);
             String xpath = line.substring(k + 1);
-            xpathMap.put(key, parseXpath(xpath));
+            xpathMap.put(key, parseXpath(xpath.trim()));
 
         }
 
@@ -65,6 +65,8 @@ public class XPathParser {
 
     public static Step parseStep(String stepStr) {
 
+        stepStr=stepStr.trim();
+        
         Step step = new Step();
         int i = stepStr.indexOf("::");
         step.setAxis(Axis.parseString(stepStr.substring(0, i)));

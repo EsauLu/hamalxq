@@ -1,5 +1,5 @@
 	
-Partial-Trees builded time out : 	24ms
+Partial-Trees builded time out : 	10ms
 	
 	step : 	child::A
 	Node : 	 A0 
@@ -14,7 +14,7 @@ Partial-Trees builded time out : 	24ms
 	
 	
 	step : 	parent::B
-	Node : 	 B1  B7  B6  B17 
+	Node : 	 B7  B6  B1  B17 
 	
 	
 Q1 : 	/child::A/descendant::B/descendant::C/parent::B
@@ -47,24 +47,24 @@ Number of nodes in result :
 	
 Number of all nodes : 	3
 	
-Time out :	1ms
+Time out :	2ms
 	
 -------	---------------------------------------------------------
 	
 		pstep : 	following-sibling::B
-		Node : 	 B20  B17  B6 
+		Node : 	 B20  B6  B17 
 	
 	
 		pstep : 	child::C
-		Node : 	 C11  C19 
+		Node : 	 C19  C11 
 	
 	
 	step : 	descendant::B[following-sibling::B/child::C]
-	Node : 	 B1  B6 
+	Node : 	 B6  B1 
 	
 	
 	step : 	child::C
-	Node : 	 C11  C2 
+	Node : 	 C2  C11 
 	
 	
 Q3 : 	/descendant::B[following-sibling::B/child::C]/child::C
@@ -85,7 +85,7 @@ Time out :	3ms
 	
 	
 	step : 	descendant::B[child::C]
-	Node : 	 B1  B7  B6  B17 
+	Node : 	 B7  B6  B1  B17 
 	
 	
 Q4 : 	/descendant::B[child::C]
@@ -97,7 +97,7 @@ Number of nodes in result :
 	
 Number of all nodes : 	4
 	
-Time out :	1ms
+Time out :	2ms
 	
 -------	---------------------------------------------------------
 	
