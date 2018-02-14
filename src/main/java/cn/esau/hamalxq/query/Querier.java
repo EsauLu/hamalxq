@@ -126,19 +126,19 @@ public class Querier {
 
 			}
 			
-			if(isMarster()) {
-		        for(int i=0;i<taskNum;i++) {
-		            List<Node> result=resultLists.get(i);
-		            StringBuilder sb=new StringBuilder();
- 		            for(Node node: result) {
-		                sb.append(node);
-		            }
-		            peer.write(new Text("\tstep : "), new Text(step.toString()));
-                    peer.write(new Text("\tNode : "), new Text(sb.toString()));
-		            peer.write(new Text(""), new Text(""));
-		        }
-		        peer.write(new Text(""), new Text(""));
-			}
+//			if(isMarster()) {
+//		        for(int i=0;i<taskNum;i++) {
+//		            List<Node> result=resultLists.get(i);
+//		            StringBuilder sb=new StringBuilder();
+// 		            for(Node node: result) {
+//		                sb.append(node);
+//		            }
+//		            peer.write(new Text("\tstep : "), new Text(step.toString()));
+//                    peer.write(new Text("\tNode : "), new Text(sb.toString()));
+//		            peer.write(new Text(""), new Text(""));
+//		        }
+//		        peer.write(new Text(""), new Text(""));
+//			}
 			
 			sync();
             step = step.getNext();
