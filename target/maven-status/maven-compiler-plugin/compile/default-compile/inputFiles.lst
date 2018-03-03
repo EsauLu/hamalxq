@@ -5,10 +5,12 @@
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/bsp/input/format/TagInputFormat.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/entry/NodeType.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/entry/TagType.java
+/Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/utils/MsgMannager.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/factory/NodeFactory.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/utils/Utils.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/bsp/input/reader/TagRecordReader.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/entry/Axis.java
+/Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/parser/PartialTreesConstructor.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/entry/Message.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/entry/Node.java
 /Users/imac/Desktop/workspace/hamalxq/src/main/java/cn/esau/hamalxq/entry/PartialTree.java

@@ -130,12 +130,18 @@ public class Utils {
 
     public static void bfsWithRanges(int pid, Node root) {
 
+
+        System.out.println(getBFSWithRanges(pid, root));
+
+    }
+    public static String getBFSWithRanges(int pid, Node root) {
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("pid = " + pid + "  >>  ");
 
         if (root == null) {
-            return;
+            return "";
         }
 
         Deque<Node> que = new ArrayDeque<>();
@@ -159,7 +165,7 @@ public class Utils {
 
         }
 
-        System.out.println(sb.toString());
+        return sb.toString();
 
     }
 

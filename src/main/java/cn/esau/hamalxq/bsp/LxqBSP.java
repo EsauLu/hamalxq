@@ -17,6 +17,7 @@ import cn.esau.hamalxq.entry.Message;
 import cn.esau.hamalxq.entry.PartialTree;
 import cn.esau.hamalxq.entry.Step;
 import cn.esau.hamalxq.parser.PartialTreeBuilder;
+import cn.esau.hamalxq.parser.PartialTreesConstructor;
 import cn.esau.hamalxq.parser.XPathParser;
 import cn.esau.hamalxq.query.Communication;
 import cn.esau.hamalxq.query.Querier;
@@ -24,10 +25,8 @@ import cn.esau.hamalxq.utils.Utils;
 
 public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
 
-    private Querier querier;
-    
-    private Map<String, Step> xpathMap;
-    
+    private Map<String, Step> xpaths;
+
     private Communication com;
 
     @Override
@@ -36,36 +35,32 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
         super.setup(peer);
 
         try {
-			com=new Communication(peer);
-			
-			querier=new Querier();
-			querier.setPeer(peer);        
+            com = new Communication(peer);
 
-			HamaConfiguration conf = peer.getConfiguration();
-			String xpath = conf.get("xpath");
-			Path path = new Path(xpath);
-			
-			FileSystem fs = path.getFileSystem(conf);
-			FSDataInputStream fin = fs.open(path);
-			
-			System.out.println(path.toString());
-			
-			StringBuilder sb=new StringBuilder();
-			byte[] buff=new byte[1024];
-			int len=0;
-			while((len=fin.read(buff))!=-1) {
-			    String tem=new String(buff, 0, len);
-			    sb.append(tem);
-			}
-			xpathMap=XPathParser.getXPaths(sb.toString().split("\n"));
-			
-			querier.setXpathMap(xpathMap);
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw e;
-		}
-        
+            HamaConfiguration conf = peer.getConfiguration();
+            String xpath = conf.get("xpath");
+            Path path = new Path(xpath);
+
+            FileSystem fs = path.getFileSystem(conf);
+            FSDataInputStream fin = fs.open(path);
+
+            System.out.println(path.toString());
+
+            StringBuilder sb = new StringBuilder();
+            byte[] buff = new byte[1024];
+            int len = 0;
+            while ((len = fin.read(buff)) != -1) {
+                String tem = new String(buff, 0, len);
+                sb.append(tem);
+            }
+            xpaths = XPathParser.getXPaths(sb.toString().split("\n"));
+
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw e;
+        }
+
     }
 
     @Override
@@ -79,31 +74,46 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
         // TODO Auto-generated method stub
 
         try {
-			buildPartialTree(peer);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw e;
-		}
+            buildPartialTree(peer);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw e;
+        }
 
     }
 
-    private void buildPartialTree(BSPPeer<LongWritable, Text, Text, Text, Message> peer)
-            throws IOException, SyncException, InterruptedException {
-        
-        long t1=System.currentTimeMillis();
-        PartialTree pt=new PartialTreeBuilder(com, peer).buildPartialTree();
-        long t2=System.currentTimeMillis();
-        
-        peer.write(new Text(), new Text());
-        peer.write(new Text("Partial-Trees builded time out : "), new Text((t2-t1)+"ms"));
-        peer.write(new Text(), new Text());
-        
-//        peer.write(new Text("Partial-tree : "), new Text(Utils.getTreeString(pt.getPid(), pt.getRoot())));
-//        peer.write(new Text(), new Text());
-        
-        querier.setPt(pt);
-        querier.start();
+    private void buildPartialTree(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
+
+        try {
+            PartialTree pt = new PartialTreesConstructor().buildPartialTree(peer);
+
+            peer.write(new Text(), new Text(Utils.getBFSWithRanges(peer.getPeerIndex(), pt.getRoot())));
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    private void _buildPartialTree(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
+
+        // long t1=System.currentTimeMillis();
+        // PartialTree pt=new PartialTreeBuilder(com, peer).buildPartialTree();
+        // long t2=System.currentTimeMillis();
+        //
+        // peer.write(new Text(), new Text());
+        // peer.write(new Text("Partial-Trees builded time out : "), new
+        // Text((t2-t1)+"ms"));
+        // peer.write(new Text(), new Text());
+        //
+        //// peer.write(new Text("Partial-tree : "), new
+        // Text(Utils.getTreeString(pt.getPid(), pt.getRoot())));
+        //// peer.write(new Text(), new Text());
+        //
+        // querier.setPt(pt);
+        // querier.start();
     }
 
 }

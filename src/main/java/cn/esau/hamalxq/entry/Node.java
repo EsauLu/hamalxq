@@ -65,6 +65,18 @@ public class Node implements WritableComparable<Node>{
         this.start = start;
         this.end = end;
     }
+    
+    public Node copy() {
+        Node node = new Node();
+        node.setUid(uid);
+        node.setPid(pid);
+        node.setTagName(tagName);
+        node.setType(type);
+        node.setStart(start);
+        node.setEnd(end);
+        node.setDepth(depth);
+        return node;
+    }
 
     private void init(){
 

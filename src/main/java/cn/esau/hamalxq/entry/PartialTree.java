@@ -45,6 +45,49 @@ public class PartialTree {
         this.pid = pid;
     }
 
+    public List<Node> getLeftOpenNodes() {
+        List<Node> ll = new ArrayList<>();
+
+        Node p = root;
+
+        while (p != null && !p.isClosedNode()) {
+            if (p.isLeftOpenNode()) {
+                ll.add(p);
+            }
+            p = p.getFirstChild();
+        }
+
+        return ll;
+    }
+
+    public List<Node> getRightOpenNodes() {
+        List<Node> rl = new ArrayList<>();
+
+        Node p = root;
+
+        while (p != null && !p.isClosedNode()) {
+            if (p.isRightOpenNode()) {
+                rl.add(p);
+            }
+            p = p.getLastChild();
+        }
+
+        return rl;
+    }
+
+    public List<Node> getPreOpenNodes() {
+        List<Node> pp = new ArrayList<>();
+
+        Node p = root;
+
+        while (p != null && p.isPreOpenNode()) {
+            pp.add(p);
+            p=p.getFirstChild();
+        }
+
+        return pp;
+    }
+
     public Node findNodeByUid(long uid) {
         Node target = nodeMap.get(uid);
         return target;
@@ -55,7 +98,7 @@ public class PartialTree {
         List<Node> outputList = new ArrayList<>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             Node inputNode = inputList.remove(i);
             Node originNode = nodeMap.get(inputNode.getUid());
             for (int j = 0; j < originNode.getChildNum(); j++) {
@@ -75,7 +118,7 @@ public class PartialTree {
         List<PNode> outputList = new ArrayList<PNode>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             PNode inputPNode = inputList.remove(i);
             Node inputNode = inputPNode.getNode();
             Node originNode = nodeMap.get(inputNode.getUid());
@@ -100,7 +143,7 @@ public class PartialTree {
         setIsChecked(false);
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             Node inputNode = inputList.remove(i);
 
@@ -138,7 +181,7 @@ public class PartialTree {
         setIsChecked(false);
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             PNode inputPNode = inputList.remove(i);
 
@@ -178,7 +221,7 @@ public class PartialTree {
         List<Node> outputList = new ArrayList<>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             Node inputNode = inputList.remove(i);
             Node node = nodeMap.get(inputNode.getUid());
@@ -201,7 +244,7 @@ public class PartialTree {
         List<Node> outputList = new ArrayList<>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             Node inputNode = inputList.remove(i);
             Node node = nodeMap.get(inputNode.getUid());
@@ -224,7 +267,7 @@ public class PartialTree {
         List<PNode> outputList = new ArrayList<>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             PNode inputPNode = inputList.remove(i);
             Node node = nodeMap.get(inputPNode.getNode().getUid());
             if (node == null) {
@@ -246,7 +289,7 @@ public class PartialTree {
         List<PNode> outputList = new ArrayList<>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             PNode inputPNode = inputList.remove(i);
             Node node = nodeMap.get(inputPNode.getNode().getUid());
             if (node == null) {
@@ -267,7 +310,7 @@ public class PartialTree {
         List<Node> outputList = new ArrayList<Node>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             Node inputNode = inputList.remove(i);
             Node node = nodeMap.get(inputNode.getUid());
@@ -284,7 +327,7 @@ public class PartialTree {
         List<PNode> outputList = new ArrayList<PNode>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             PNode inputPNode = inputList.remove(i);
             Node node = nodeMap.get(inputPNode.getNode().getUid());
             if (node != null) {
@@ -303,7 +346,7 @@ public class PartialTree {
         setIsChecked(false);
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             Node inputNode = inputList.remove(i);
             Node node = nodeMap.get(inputNode.getUid());
@@ -332,7 +375,7 @@ public class PartialTree {
         setIsChecked(false);
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             PNode inputPNode = inputList.remove(i);
             Node tem = inputPNode.getNode();
@@ -363,7 +406,7 @@ public class PartialTree {
         List<Node> outputList = new ArrayList<Node>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             Node inputNode = inputList.remove(i);
             Node node = nodeMap.get(inputNode.getUid());
@@ -381,7 +424,7 @@ public class PartialTree {
         List<PNode> outputList = new ArrayList<PNode>();
 
         int size = inputList.size();
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
 
             PNode inputPNode = inputList.remove(i);
             Node node = nodeMap.get(inputPNode.getNode().getUid());
