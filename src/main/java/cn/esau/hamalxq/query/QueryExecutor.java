@@ -40,9 +40,11 @@ public class QueryExecutor {
                 List<Node> result = query(peer, pt, xpath);
                 long t2 = System.currentTimeMillis();
 
-                printResult(peer, key, xpath, result, t1);
+//                printResult(peer, key, xpath, result, t1);
 
-                writeResult(peer, xpath, result, t2 - t1);
+//                writeResult(peer, xpath, result, t2 - t1);
+                
+                writeResultData(peer, key, xpath, result, t1);
 
             }
         } catch (Exception e) {
@@ -51,26 +53,48 @@ public class QueryExecutor {
         }
 
     }
-
-    private void writeResult(BSPPeer<LongWritable, Text, Text, Text, Message> peer, Step xpath, List<Node> result, long timeOut)
+    
+    private void writeResultData(BSPPeer<LongWritable, Text, Text, Text, Message> peer, String key, 
+            Step xpath, List<Node> result, long t1)
             throws IOException, SyncException, InterruptedException {
-
-        peer.write(new Text(""), new Text(""));
-        peer.write(new Text("XPath : "), new Text(xpath.toXPath()));
-        peer.write(new Text(""), new Text(""));
-
-        StringBuilder sb = new StringBuilder();
-        for (Node node : result) {
-            sb.append(node);
+        long count=0;
+        for(Node node: result) {
+            if(node.isLeftOpenNode()||node.isClosedNode()) {
+                count++;
+            }
         }
-        peer.write(new Text("Result : "), new Text(sb.toString()));
-        peer.write(new Text(""), new Text(""));
+        PNode tem=new PNode(new Node(result.size()), new Link(peer.getPeerIndex(), count));
+        msgMannager.sendPNode(peer, 0, tem);
+        peer.sync();
+        if(isMaster(peer)) {
+            List<PNode> res=msgMannager.receivePNodeList(peer);
+            long t2=System.currentTimeMillis();
+            peer.write(new Text(""), new Text(""));
+            peer.write(new Text(key+" : "), new Text(xpath.toXPath()));
+            peer.write(new Text(""), new Text(""));
+            peer.write(new Text("Number of nodes : "), new Text(""));
+            peer.write(new Text(""), new Text(""));
+            Map<Integer, PNode> resMap=new HashMap<>();
+            for(PNode pNode: res) {
+                resMap.put(pNode.getLink().getPid(), pNode);
+            }
+            count=0;
+            for(int i=0; i<peer.getNumPeers(); i++) {
+                PNode pNode=resMap.get(i);
+                peer.write(new Text("\tpt"+i+" : "), new Text(""+pNode.getNode().getUid()));
+                count+=pNode.getLink().getUid();
+            }
+            peer.write(new Text(""), new Text(""));
+            peer.write(new Text("Number of all nodes : "), new Text(""+count));
+            peer.write(new Text(""), new Text(""));
+            peer.write(new Text("Time out : "), new Text((t2-t1)+" ms"));
+            peer.write(new Text(""), new Text(""));
+            peer.write(new Text("-------------------------------------------------------------------------"), new Text(""));
+        }
+        peer.sync();
 
-        peer.write(new Text("Number of Nodes : "), new Text(result.size() + ""));
-        peer.write(new Text(""), new Text(""));
-        peer.write(new Text("Time out : "), new Text(timeOut + ""));
-        peer.write(new Text(""), new Text(""));
-        peer.write(new Text("------------------------------------------------------------------------------"), new Text(""));
+
+        
     }
 
     private void printResult(BSPPeer<LongWritable, Text, Text, Text, Message> peer, String key,

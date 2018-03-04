@@ -25,15 +25,12 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
 
     private Map<String, Step> xpaths;
 
-    private Communication com;
-
     @Override
     public void setup(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
         // TODO Auto-generated method stub
         super.setup(peer);
 
         try {
-            com = new Communication(peer);
 
             HamaConfiguration conf = peer.getConfiguration();
             String xpath = conf.get("xpath");
