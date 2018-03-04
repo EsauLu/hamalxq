@@ -1,1 +1,20 @@
-	pid = 3  >>   +ROOT-1+(0, 4)  +A0+(0, 4)  +B6(1, 3)  E15  +D13(2, 3)  D16  E14 
+	
+XPath : 	descendant::B[child::C[following-sibling::D]]
+	
+Result : 	 +B6 
+	
+Number of Nodes : 	1
+	
+Time out : 	5
+	
+------------------------------------------------------------------------------	
+	
+XPath : 	descendant::B[child::C]
+	
+Result : 	 +B6 
+	
+Number of Nodes : 	1
+	
+Time out : 	1
+	
+------------------------------------------------------------------------------	

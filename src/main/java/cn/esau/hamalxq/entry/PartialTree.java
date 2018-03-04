@@ -437,7 +437,7 @@ public class PartialTree {
 
     }
 
-    private void setIsChecked(boolean isChecked) {
+    public void setIsChecked(boolean isChecked) {
 
         for (Long uid : nodeMap.keySet()) {
             Node node = nodeMap.get(uid);

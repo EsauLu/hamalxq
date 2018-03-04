@@ -42,7 +42,7 @@ public class PartialTreesConstructor {
 
         PartialTree pt = new PartialTree();
         pt.setRoot(root);
-        pt.setPid(peer.getNumPeers());
+        pt.setPid(peer.getPeerIndex());
         pt.update();
 
         // Compute ranges.

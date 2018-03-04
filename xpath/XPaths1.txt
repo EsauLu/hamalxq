@@ -1,5 +1,10 @@
-Q1 child::A/descendant::B/descendant::C/parent::B
-Q2 /descendant::B/following-sibling::B
-Q3 /descendant::B[following-sibling::B/child::C]/child::C
-Q4 /descendant::B[following-sibling::B]
-Q4 /descendant::B[child::C]
+#Q0 child::A/descendant::B/descendant::C
+#Q1 child::A/descendant::B/descendant::C/parent::B
+#Q2 /descendant::B/following-sibling::B
+#Qy /descendant::C[parent::B]
+#Qpp /descendant::B[following-sibling::B/child::C]
+#sQ3 /descendant::B[following-sibling::B/child::C]/child::C
+Qrr0 /descendant::B[child::C]
+Qrr1 /descendant::B[child::C[following-sibling::D]]
+#Q4 /descendant::B[following-sibling::B]
+#Q4 /descendant::B[child::C]

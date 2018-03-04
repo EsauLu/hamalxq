@@ -13,7 +13,7 @@ public class Main {
 
         	String xml="ex";
         	String xpath="1";
-        	int taskNum=5;
+        	int taskNum=1;
         	if(args.length==3) {
         		xml="x"+args[0];
         		xpath=args[1];
