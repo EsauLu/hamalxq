@@ -197,10 +197,6 @@ public class PartialTreesConstructor {
         return rl;
     }
 
-    public boolean isMaster(BSPPeer<LongWritable, Text, Text, Text, Message> peer) {
-        return peer.getPeerIndex() == 0;
-    }
-
     public List<Node> buildSubTrees(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
 
         int pid = peer.getPeerIndex();
