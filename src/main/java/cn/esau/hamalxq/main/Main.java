@@ -46,7 +46,7 @@ public class Main {
 
         String input = "lu/xml/" + xml;
         String output = "lu/output/" + xml+"_"+taskNum;
-        String xpath = "xpath/XPaths" + xp + ".txt";
+        String xpath = "lu/xpath/XPaths" + xp + ".txt";
 
         System.out.println(input);
         System.out.println(output);
