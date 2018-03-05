@@ -1,0 +1,112 @@
+	
+Time out of build Partial-tree : 	3636ms
+	
+=========================================================	
+	
+Q4 : 	child::site/descendant::keyword/parent::text
+	
+Number of nodes : 	
+	
+	pt0 : 	2992
+	pt1 : 	3072
+	pt2 : 	3033
+	pt3 : 	2994
+	pt4 : 	3019
+	pt5 : 	3019
+	pt6 : 	2993
+	pt7 : 	3120
+	pt8 : 	219
+	pt9 : 	734
+	pt10 : 	2172
+	pt11 : 	2194
+	pt12 : 	2126
+	pt13 : 	2499
+	pt14 : 	3152
+	pt15 : 	3109
+	
+Number of all nodes : 	40444
+	
+Time out : 	118 ms
+	
+-------------------------------------------------------------------------	
+	
+Q5 : 	child::site/child::people/child::person[child::profile/child::gender]/child::name
+	
+Number of nodes : 	
+	
+	pt0 : 	0
+	pt1 : 	0
+	pt2 : 	0
+	pt3 : 	0
+	pt4 : 	0
+	pt5 : 	0
+	pt6 : 	0
+	pt7 : 	0
+	pt8 : 	3820
+	pt9 : 	2600
+	pt10 : 	0
+	pt11 : 	0
+	pt12 : 	0
+	pt13 : 	0
+	pt14 : 	0
+	pt15 : 	0
+	
+Number of all nodes : 	6420
+	
+Time out : 	27 ms
+	
+-------------------------------------------------------------------------	
+	
+Q6 : 	child::site/child::open_auctions/child::open_auction/child::bidder[following-sibling::bidder]
+	
+Number of nodes : 	
+	
+	pt0 : 	0
+	pt1 : 	0
+	pt2 : 	0
+	pt3 : 	0
+	pt4 : 	0
+	pt5 : 	0
+	pt6 : 	0
+	pt7 : 	0
+	pt8 : 	0
+	pt9 : 	4484
+	pt10 : 	12032
+	pt11 : 	12027
+	pt12 : 	12187
+	pt13 : 	7926
+	pt14 : 	0
+	pt15 : 	0
+	
+Number of all nodes : 	48656
+	
+Time out : 	192 ms
+	
+-------------------------------------------------------------------------	
+	
+Q7 : 	child::site/child::closed_auctions/child::closed_auction/child::annotation/child::description/child::text/child::keyword
+	
+Number of nodes : 	
+	
+	pt0 : 	0
+	pt1 : 	0
+	pt2 : 	0
+	pt3 : 	0
+	pt4 : 	0
+	pt5 : 	0
+	pt6 : 	0
+	pt7 : 	0
+	pt8 : 	0
+	pt9 : 	0
+	pt10 : 	0
+	pt11 : 	0
+	pt12 : 	0
+	pt13 : 	578
+	pt14 : 	1726
+	pt15 : 	1738
+	
+Number of all nodes : 	4042
+	
+Time out : 	16 ms
+	
+-------------------------------------------------------------------------	

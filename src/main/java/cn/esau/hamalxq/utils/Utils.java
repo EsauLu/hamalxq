@@ -8,7 +8,6 @@ import java.util.List;
 import cn.esau.hamalxq.entry.Node;
 import cn.esau.hamalxq.entry.NodeType;
 import cn.esau.hamalxq.entry.PNode;
-import cn.esau.hamalxq.entry.RemoteNode;
 
 public class Utils {
 
@@ -335,17 +334,6 @@ public class Utils {
 
         sb.append(pid + " : ");
         for (PNode node : list) {
-            sb.append(node);
-        }
-        System.out.println(sb.toString());
-    }
-
-    public static void printRemoteNods(int pid, List<RemoteNode> list) {
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(pid + " : ");
-        for (RemoteNode node : list) {
             sb.append(node);
         }
         System.out.println(sb.toString());

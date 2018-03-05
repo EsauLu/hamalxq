@@ -17,8 +17,22 @@ public class MainTest extends TestCase {
     }
     
     public void testMain() throws Exception {
-        Main.main(new String[] {});
-        assertTrue( true );
+
+//        String[] xmls= {"1",};
+//        String[] xmls= {"6",};
+//        String[] xmls= {"1", "6"};
+//        String[] taskNums= {"1", "2", "4", "8", "16"};
+//        
+//        for(String xml: xmls) {
+//            for(String task: taskNums) {
+//                System.out.println("");
+//                System.out.println("Start job : ");
+//                Main.main(new String[] {xml, "2", task});
+//                System.out.println("=======================================================================");
+//            }
+//        }
+        
+        assertTrue( true ); 
     }
 
 }

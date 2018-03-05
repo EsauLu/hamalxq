@@ -23,9 +23,12 @@ import cn.esau.hamalxq.utils.MsgMannager;
 public class PartialTreesConstructor {
 
     private MsgMannager msgMannager = new MsgMannager();
+    
+    private long nodeCount=0;
 
     public PartialTree buildPartialTree(BSPPeer<LongWritable, Text, Text, Text, Message> peer)
             throws IOException, SyncException, InterruptedException {
+        long t1=System.currentTimeMillis();
 
         List<Node> subTrees = buildSubTrees(peer);
 
@@ -47,9 +50,20 @@ public class PartialTreesConstructor {
 
         // Compute ranges.
         computeRanges(peer, pt);
+        
+        long t2=System.currentTimeMillis();
+        writeBuildResult(peer, pt, t2-t1);
 
         return pt;
 
+    }
+    
+    private void writeBuildResult(BSPPeer<LongWritable, Text, Text, Text, Message> peer, PartialTree pt, long timeOut)
+            throws IOException, SyncException, InterruptedException {
+        peer.write(new Text(""), new Text(""));
+        peer.write(new Text("Time out of build Partial-tree : "), new Text(timeOut+"ms"));
+        peer.write(new Text(""), new Text(""));
+        peer.write(new Text("========================================================="), new Text(""));
     }
 
     private void computeRanges(BSPPeer<LongWritable, Text, Text, Text, Message> peer, PartialTree pt)
@@ -199,6 +213,7 @@ public class PartialTreesConstructor {
 
     public List<Node> buildSubTrees(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
 
+        nodeCount=0;
         int pid = peer.getPeerIndex();
         Deque<Node> stack = new ArrayDeque<Node>();
         stack.push(NodeFactory.createNode("?", NodeType.CLOSED_NODE, pid));
@@ -235,13 +250,14 @@ public class PartialTreesConstructor {
                 // System.out.println(tag.toString());
 
                 if (TagType.START.equals(tag.getType())) {
-
+                    nodeCount++;
                     Node node = NodeFactory.createNode(tag.getName(), NodeType.CLOSED_NODE, pid);
                     stack.push(node);
 
                 } else {
 
                     if (TagType.FULL.equals(tag.getType())) {
+                        nodeCount++;
                         Node node = NodeFactory.createNode(tag.getName(), NodeType.CLOSED_NODE, pid);
                         stack.push(node);
                     }
@@ -252,6 +268,7 @@ public class PartialTreesConstructor {
                         stack.pop();
                         stack.peek().addLastChild(node);
                     } else {
+                        nodeCount++;
                         Node temNode = NodeFactory.createNode(tag.getName(), NodeType.LEFT_OPEN_NODE, pid);
                         temNode.addChilds(node.getAllChilds());
                         node.clearChilds();

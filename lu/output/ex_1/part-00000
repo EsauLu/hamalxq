@@ -1,0 +1,28 @@
+	
+Time out of build Partial-tree : 	5ms
+	
+=========================================================	
+	
+Qrr1 : 	descendant::B[child::C[following-sibling::D]]
+	
+Number of nodes : 	
+	
+	pt0 : 	2
+	
+Number of all nodes : 	2
+	
+Time out : 	5 ms
+	
+-------------------------------------------------------------------------	
+	
+Qrr0 : 	descendant::B[child::C]
+	
+Number of nodes : 	
+	
+	pt0 : 	4
+	
+Number of all nodes : 	4
+	
+Time out : 	0 ms
+	
+-------------------------------------------------------------------------	

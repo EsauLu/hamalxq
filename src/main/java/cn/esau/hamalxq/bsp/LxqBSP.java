@@ -18,7 +18,6 @@ import cn.esau.hamalxq.entry.PartialTree;
 import cn.esau.hamalxq.entry.Step;
 import cn.esau.hamalxq.parser.PartialTreesConstructor;
 import cn.esau.hamalxq.parser.XPathParser;
-import cn.esau.hamalxq.query.Communication;
 import cn.esau.hamalxq.query.QueryExecutor;
 
 public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
@@ -81,8 +80,12 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
     private void buildPartialTree(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException, SyncException, InterruptedException {
 
         try {
+            
+            System.out.println("Build partial-tree "+peer.getPeerIndex());
             PartialTree pt = new PartialTreesConstructor().buildPartialTree(peer);
+            System.out.println("Query begin : "+peer.getPeerIndex());
             new QueryExecutor().multiQuery(peer, pt, xpaths);
+            System.out.println("Task "+peer.getPeerIndex()+" complete !");
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
