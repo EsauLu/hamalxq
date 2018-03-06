@@ -1,5 +1,5 @@
 	
-Time out of build Partial-tree : 	3656ms
+Time out of build Partial-tree : 	5951ms
 	
 =========================================================	
 	
@@ -18,7 +18,7 @@ Number of nodes :
 	
 Number of all nodes : 	40444
 	
-Time out : 	116 ms
+Time out : 	329 ms
 	
 -------------------------------------------------------------------------	
 	
@@ -37,7 +37,7 @@ Number of nodes :
 	
 Number of all nodes : 	6420
 	
-Time out : 	40 ms
+Time out : 	95 ms
 	
 -------------------------------------------------------------------------	
 	
@@ -56,7 +56,7 @@ Number of nodes :
 	
 Number of all nodes : 	48656
 	
-Time out : 	244 ms
+Time out : 	3108 ms
 	
 -------------------------------------------------------------------------	
 	
@@ -75,6 +75,6 @@ Number of nodes :
 	
 Number of all nodes : 	4042
 	
-Time out : 	19 ms
+Time out : 	25 ms
 	
 -------------------------------------------------------------------------	

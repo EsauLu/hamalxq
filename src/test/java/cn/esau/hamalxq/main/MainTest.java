@@ -31,7 +31,8 @@ public class MainTest extends TestCase {
 //                System.out.println("=======================================================================");
 //            }
 //        }
-        
+
+      Main.main(new String[] {});
         assertTrue( true ); 
     }
 
