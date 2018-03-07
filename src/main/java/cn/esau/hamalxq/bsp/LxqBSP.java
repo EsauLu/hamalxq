@@ -84,6 +84,7 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
             System.out.println("Build partial-tree "+peer.getPeerIndex());
             PartialTree pt = new PartialTreesConstructor().buildPartialTree(peer);
             System.out.println("Query begin : "+peer.getPeerIndex());
+            System.gc();
             new QueryExecutor().multiQuery(peer, pt, xpaths);
             System.out.println("Task "+peer.getPeerIndex()+" complete !");
 

@@ -45,6 +45,7 @@ public class QueryExecutor {
 //                writeResult(peer, xpath, result, t2 - t1);
                 
                 writeResultData(peer, key, xpath, result, t1);
+                System.gc();
 
             }
         } catch (Exception e) {
