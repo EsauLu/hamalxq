@@ -30,11 +30,14 @@ public class PartialTreesConstructor {
             throws IOException, SyncException, InterruptedException {
         long t1=System.currentTimeMillis();
 
+        System.out.println("BuildSubTrees");
         List<Node> subTrees = buildSubTrees(peer);
 
+        System.out.println("ComputePrePath");
         Node root = computePrePath(peer, subTrees);
 
         // Compute Uid numbers.
+        System.out.println("Compute Uid numbers");
         int taskNum = peer.getNumPeers();
         for (int i = 0; i < taskNum; i++) {
             if (i == peer.getPeerIndex()) {
@@ -43,12 +46,14 @@ public class PartialTreesConstructor {
             peer.sync();
         }
 
+        System.out.println("Create Partiel-tree object");
         PartialTree pt = new PartialTree();
         pt.setRoot(root);
         pt.setPid(peer.getPeerIndex());
         pt.update();
 
         // Compute ranges.
+        System.out.println("Compute ranges");
         computeRanges(peer, pt);
         
         long t2=System.currentTimeMillis();

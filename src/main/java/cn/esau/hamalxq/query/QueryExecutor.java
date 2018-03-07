@@ -35,6 +35,7 @@ public class QueryExecutor {
         try {
             for (String key : xpaths.keySet()) {
                 Step xpath = xpaths.get(key);
+                System.out.println("Query : "+xpath.toXPath());
                 peer.sync();
                 long t1 = System.currentTimeMillis();
                 List<Node> result = query(peer, pt, xpath);
@@ -45,6 +46,7 @@ public class QueryExecutor {
 //                writeResult(peer, xpath, result, t2 - t1);
                 
                 writeResultData(peer, key, xpath, result, t1);
+                System.out.println("Query time out : "+(t2-t1)+"ms");
                 System.gc();
 
             }
@@ -102,12 +104,25 @@ public class QueryExecutor {
             Step xpath, List<Node> result, long beginTime)
             throws IOException, SyncException, InterruptedException {
 
-        msgMannager.sendNodeList(peer, 0, result);
+        List<List<Node>> results = null;
+        if(isMaster(peer)) {
+            results=new ArrayList<>();            
+        }
+        for(int i=0;i<peer.getNumPeers();i++) {
+            if(peer.getPeerIndex()==i) {
+                msgMannager.sendNodeList(peer, 0, result);
+            }
+            peer.sync();
+            if(isMaster(peer)) {
+                List<Node> res=msgMannager.receiveNodeList(peer);
+                results.add(res);
+            }
+            peer.sync();
+        }
 
         peer.sync();
 
         if (isMaster(peer)) {
-            List<List<Node>> results = msgMannager.receiveNodesFromAllPeer(peer);
             long endTime = System.currentTimeMillis();
             StringBuilder sb = new StringBuilder();
 

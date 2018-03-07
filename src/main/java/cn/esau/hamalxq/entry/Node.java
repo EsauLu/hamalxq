@@ -12,8 +12,6 @@ import org.apache.hadoop.io.WritableComparable;
 public class Node implements WritableComparable<Node>{
 
     private long uid;
-    
-    private int pid;
 
     private String tagName="Null Name";
 
@@ -69,7 +67,6 @@ public class Node implements WritableComparable<Node>{
     public Node copy() {
         Node node = new Node();
         node.setUid(uid);
-        node.setPid(pid);
         node.setTagName(tagName);
         node.setType(type);
         node.setStart(start);
@@ -106,14 +103,6 @@ public class Node implements WritableComparable<Node>{
 
     public void setChecked(boolean isChecked) {
         this.isChecked = isChecked;
-    }
-
-    public int getPid() {
-        return pid;
-    }
-
-    public void setPid(int pid) {
-        this.pid = pid;
     }
 
     public long getUid() {
@@ -317,7 +306,6 @@ public class Node implements WritableComparable<Node>{
     @Override
     public void write(DataOutput out) throws IOException {
         // TODO Auto-generated method stub
-        out.writeInt(pid);
         out.writeLong(uid);
         out.writeUTF(tagName==null?"Null Name":tagName);
         out.writeInt(type.getValue());
@@ -328,7 +316,6 @@ public class Node implements WritableComparable<Node>{
     @Override
     public void readFields(DataInput in) throws IOException {
         // TODO Auto-generated method stub
-        this.pid=in.readInt();
         this.uid=in.readLong();
         this.tagName=in.readUTF();
         this.type=NodeType.parseNodeType(in.readInt());

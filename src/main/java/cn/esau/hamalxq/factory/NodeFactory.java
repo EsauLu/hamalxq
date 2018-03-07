@@ -12,7 +12,6 @@ public class NodeFactory {
         node.setUid(Long.MIN_VALUE);
         node.setStart(pid);
         node.setEnd(pid);
-        node.setPid(pid);
         return node;
     }
 
