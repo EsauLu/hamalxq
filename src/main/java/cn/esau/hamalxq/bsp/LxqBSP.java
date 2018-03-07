@@ -61,6 +61,7 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
     public void cleanup(BSPPeer<LongWritable, Text, Text, Text, Message> peer) throws IOException {
         // TODO Auto-generated method stub
         super.cleanup(peer);
+        System.gc();
     }
 
     @Override
@@ -87,6 +88,7 @@ public class LxqBSP extends BSP<LongWritable, Text, Text, Text, Message> {
             System.gc();
             new QueryExecutor().multiQuery(peer, pt, xpaths);
             System.out.println("Task "+peer.getPeerIndex()+" complete !");
+            System.gc();
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
